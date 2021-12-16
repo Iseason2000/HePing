@@ -9,6 +9,7 @@ import top.iseason.heping.model.ModelManager
 import top.iseason.heping.ui.screen.MyScaffold
 import top.iseason.heping.ui.theme.HePingTheme
 
+
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +21,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 }
 
 @Preview(showBackground = true)

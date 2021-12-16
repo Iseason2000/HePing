@@ -9,7 +9,6 @@ object ModelManager {
     lateinit var usageStatsManager: UsageStatsManager
     private lateinit var activity: MainActivity
     private lateinit var packageManager: PackageManager
-
     @JvmName("setMainActivity1")
     fun setMainActivity(activity: MainActivity) {
         this.activity = activity
