@@ -7,24 +7,24 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 
 private val DarkColorPalette = darkColors(
-        primary = Teal200,
-        primaryVariant = Teal700,
-        secondary = Purple200
+    primary = Teal500,
+    primaryVariant = Teal700,
+    secondary = Purple200,
 )
 
 private val LightColorPalette = lightColors(
-        primary = Teal500,
-        primaryVariant = Teal700,
-        secondary = Purple200
+    primary = Teal200,
+    primaryVariant = Teal300,
+    secondary = Purple200,
 
-        /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
+    /* Other default colors to override
+background = Color.White,
+surface = Color.White,
+onPrimary = Color.White,
+onSecondary = Color.Black,
+onBackground = Color.Black,
+onSurface = Color.Black,
+*/
 )
 
 @Composable
@@ -36,9 +36,9 @@ fun HePingTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable
     }
 
     MaterialTheme(
-            colors = colors,
-            typography = Typography,
-            shapes = Shapes,
-            content = content
+        colors = colors,
+        typography = Typography,
+        shapes = Shapes,
+        content = content
     )
 }
