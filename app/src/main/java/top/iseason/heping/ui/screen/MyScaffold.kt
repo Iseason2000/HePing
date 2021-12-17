@@ -81,6 +81,12 @@ fun MyScaffold() {
         }
 
     ) {
-        UsageWindow()
+        when (selectedItem) {
+            0 -> {
+                UsageWindow()
+            }
+            else -> {}
+        }
+
     }
 }
