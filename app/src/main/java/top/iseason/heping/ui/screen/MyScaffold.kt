@@ -13,9 +13,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import top.iseason.heping.model.AppViewModel
+import top.iseason.heping.ui.screen.health.HealthScreen
 
 @Composable
-fun MyScaffold() {
+fun MyScaffold(viewModel: AppViewModel) {
     var selectedItem by remember { mutableStateOf(0) }
     var state by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
@@ -82,9 +84,8 @@ fun MyScaffold() {
 
     ) {
         when (selectedItem) {
-            0 -> {
-                UsageWindow()
-            }
+            0 -> HealthScreen(viewModel = viewModel)
+            1 -> {}
             else -> {}
         }
 
