@@ -94,7 +94,6 @@ fun UsageWindow(modifier: Modifier = Modifier, viewModel: AppViewModel) {
 
 @Composable
 fun Item(appInfo: AppInfo, maxTime: Long) {
-    println(appInfo.useTime)
     val percentage = (appInfo.useTime.toFloat() / maxTime.toFloat())
     var openDialog by remember { mutableStateOf(false) }
     if (openDialog) {

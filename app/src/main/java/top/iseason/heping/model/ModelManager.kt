@@ -64,34 +64,29 @@ object ModelManager {
             if ((applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 1 || (applicationInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 1) continue
             map[packageName] = AppInfo(packageName, appName, 0, 0, asImageBitmap)
         }
-        val sortedEvents = allEvents.sortedBy { it.packageName }
-        for (i in 0 until sortedEvents.size - 1) {
-            val event0 = sortedEvents[i]
-            val event1 = sortedEvents[i + 1]
-            //println("${event0.packageName} ${event0.eventType} -> ${event1.packageName} ${event1.eventType}")
-//            if (event0.packageName != event1.packageName && event1.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
-//                val appInfo = map[event1.packageName]
-//                if (appInfo != null) {
-//                    appInfo.launchCount++
-//                }
-//            }
+        for (i in 0 until allEvents.size - 1) {
+            val event0 = allEvents[i]
+            val event1 = allEvents[i + 1]
+            if (event0.packageName != event1.packageName && event1.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+                val appInfo = map[event1.packageName]
+                if (appInfo != null) {
+                    appInfo.launchCount++
+                }
+            }
             if (event0.eventType == UsageEvents.Event.ACTIVITY_RESUMED &&
                 (event1.eventType == UsageEvents.Event.ACTIVITY_PAUSED || event1.eventType == UsageEvents.Event.ACTIVITY_STOPPED)
                 && event0.packageName == event1.packageName
             ) {
-//                println("${event0.packageName} ${event0.timeStamp} ${event1.timeStamp}")
                 val diff = event1.timeStamp - event0.timeStamp
                 val appUsageInfo = map[event0.packageName]
                 if (appUsageInfo != null) {
                     appUsageInfo.useTime += diff
-                    appUsageInfo.launchCount++
                 }
             }
         }
         return map
     }
 
-    @Deprecated("不太准")
     fun getAppInfoListInTime(
         startTime: Long,
         endTime: Long
@@ -139,8 +134,8 @@ object ModelManager {
         for (stats in usageStats) {
             val lastTimeUsed = stats.lastTimeUsed
             var useTime = stats.totalTimeInForeground
-            println("${stats.packageName} ${stats.lastTimeUsed} ${stats.firstTimeStamp} ${stats.lastTimeStamp} use ${stats.totalTimeInForeground} ")
-            //范围之外的数据
+//            println("${stats.packageName} ${stats.lastTimeUsed} ${stats.firstTimeStamp} ${stats.lastTimeStamp} use ${stats.totalTimeInForeground} ")
+//            //范围之外的数据
             if (lastTimeUsed + useTime < startTime) continue
 //            if (stats.lastTimeUsed == stats.lastTimeStamp) continue
             if (lastTimeUsed < startTime) {

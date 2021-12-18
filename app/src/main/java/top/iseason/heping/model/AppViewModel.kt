@@ -1,5 +1,6 @@
 package top.iseason.heping.model
 
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,12 +25,21 @@ class AppViewModel : ViewModel() {
             val start = calendar.timeInMillis
             calendar.add(Calendar.DATE, 1)
             val end = calendar.timeInMillis
-            emitState(
-                viewState.value.copy(appInfo = ModelManager.queryUsageStatistics(
-                    start,
-                    end
-                ).values.sortedByDescending { it.useTime })
-            )
+            //根据系统版本选择
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                emitState(
+                    viewState.value.copy(appInfo = ModelManager.getAppInfoListInTime(
+                        start,
+                        end
+                    ).sortedByDescending { it.useTime })
+                )
+            else
+                emitState(
+                    viewState.value.copy(appInfo = ModelManager.queryUsageStatistics(
+                        start,
+                        end
+                    ).values.sortedByDescending { it.useTime })
+                )
         }
     }
 }
