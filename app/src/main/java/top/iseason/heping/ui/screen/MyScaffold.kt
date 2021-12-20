@@ -1,19 +1,20 @@
 package top.iseason.heping.ui.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import top.iseason.heping.R
 import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.ui.screen.health.HealthScreen
 
@@ -23,9 +24,9 @@ fun MyScaffold(viewModel: AppViewModel) {
     var selectedItem by remember { mutableStateOf(0) }
     val pagerState = rememberPagerState()
     val items = listOf("健康", "专注", "我的")
-    LaunchedEffect(key1 = selectedItem, block = {
+    LaunchedEffect(selectedItem) {
         pagerState.animateScrollToPage(selectedItem)
-    })
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -33,7 +34,8 @@ fun MyScaffold(viewModel: AppViewModel) {
                     Text(
                         text = items[pagerState.currentPage],
                         fontSize = 32.sp,
-                        fontWeight = FontWeight.Black
+                        fontWeight = FontWeight.Black,
+                        modifier = Modifier.padding(top = 10.dp)
                     )
                 },
                 backgroundColor = MaterialTheme.colors.primaryVariant,
@@ -47,26 +49,25 @@ fun MyScaffold(viewModel: AppViewModel) {
                 items.forEachIndexed { index, item ->
                     BottomNavigationItem(
                         icon = {
-                            when (index) {
-                                0 -> if (pagerState.currentPage == index) Icon(
-                                    Icons.Filled.Favorite,
-                                    contentDescription = null
-                                ) else Icon(Icons.Filled.FavoriteBorder, contentDescription = null)
-                                1 -> if (pagerState.currentPage == index) Icon(
-                                    Icons.Filled.CenterFocusStrong,
-                                    contentDescription = null
-                                ) else Icon(
-                                    Icons.Filled.CenterFocusWeak,
-                                    contentDescription = null
-                                )
-                                else -> if (pagerState.currentPage == index) Icon(
-                                    Icons.Filled.Person,
-                                    contentDescription = null
-                                ) else Icon(Icons.Outlined.Person, contentDescription = null)
-                            }
+                            Image(
+                                painterResource(
+                                    when (index) {
+                                        0 -> if (pagerState.targetPage == index)
+                                            R.drawable.icon_health_select else
+                                            R.drawable.icon_health
+                                        1 -> if (pagerState.targetPage == index)
+                                            R.drawable.icon_focus_select else
+                                            R.drawable.icon_focus
+                                        else -> if (pagerState.targetPage == index)
+                                            R.drawable.icon_mine_select else
+                                            R.drawable.icon_mine
+                                    }
+                                ),
+                                null
+                            )
                         },
                         label = { Text(item) },
-                        selected = pagerState.currentPage == index,
+                        selected = pagerState.targetPage == index,
                         selectedContentColor = MaterialTheme.colors.primary,
                         unselectedContentColor = MaterialTheme.colors.onBackground,
                         onClick = { selectedItem = index }

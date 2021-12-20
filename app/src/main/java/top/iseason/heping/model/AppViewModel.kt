@@ -42,8 +42,15 @@ class AppViewModel : ViewModel() {
                 )
         }
     }
+
+    fun setSelectedApp(index: Int) {
+        viewModelScope.launch {
+            emitState(viewState.value.copy(selectApp = index))
+        }
+    }
 }
 
 data class AppViewState(
-    val appInfo: List<AppInfo> = emptyList()
+    val appInfo: List<AppInfo> = emptyList(),
+    val selectApp: Int = -1
 )
