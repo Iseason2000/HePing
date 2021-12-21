@@ -1,31 +1,186 @@
 package top.iseason.heping.ui.screen.health
 
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowForwardIos
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import top.iseason.heping.R
 import top.iseason.heping.model.AppViewModel
+import top.iseason.heping.model.ModelManager
 
 @Composable
-fun HealthScreen(modifier: Modifier = Modifier, viewModel: AppViewModel) {
+fun HealthScreen(viewModel: AppViewModel) {
     val mainColor = MaterialTheme.colors.primaryVariant
     val subColor = MaterialTheme.colors.background
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        drawRect(
-            brush = Brush.linearGradient(
-                colors = listOf(mainColor, subColor),
-                start = Offset(size.width / 2, 0F),
-                end = Offset(size.width / 2, size.height)
-            ),
-        )
-    }
-    LazyColumn(modifier = modifier) {
+    if (MaterialTheme.colors.isLight)
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawRect(
+                brush = Brush.linearGradient(
+                    colors = listOf(mainColor, subColor),
+                    start = Offset(size.width / 2, 0F),
+                    end = Offset(size.width / 2, size.height)
+                ),
+            )
+        }
+    LazyColumn(modifier = Modifier.padding(all = 16.dp)) {
         item {
             UsageWindow(viewModel = viewModel)
         }
+        item {
+            MoreAppInfo(viewModel = viewModel)
+        }
+        item {
+            MessageCard(
+                viewModel = viewModel,
+                title = "睡眠",
+                subTitle = "昨晚睡眠",
+                time = "7小时52分钟",
+                message = "未设定睡眠计划",
+                drawable = R.drawable.moon,
+                modifier = Modifier.padding(top = 26.dp, end = 33.dp)
+            ) {
+                Toast.makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT).show()
+            }
+        }
+        item {
+            MessageCard(
+                viewModel = viewModel,
+                title = "疲劳记录",
+                subTitle = "目前已连续使用屏幕",
+                time = "7小时52分钟",
+                message = "未启用连续使用提醒",
+                drawable = R.drawable.eyes_tired,
+                modifier = Modifier.padding(top = 42.dp, end = 24.dp)
+            ) {
+                Toast.makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT)
+                    .show()
+            }
+
+        }
+        item {
+            MessageCard(
+                viewModel = viewModel,
+                title = "久坐检测",
+                subTitle = "今天检测到久坐",
+                time = "3次",
+                message = "未启用久坐提醒",
+                drawable = R.drawable.chair,
+                modifier = Modifier.padding(top = 22.dp, end = 41.dp)
+            ) {
+                Toast.makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT).show()
+            }
+        }
+        item { Spacer(modifier = Modifier.padding(top = 64.dp)) }
     }
 }
+
+@Composable
+fun MoreAppInfo(viewModel: AppViewModel) {
+    Surface(
+        modifier = Modifier
+            .padding(top = 16.dp)
+            .height(height = 48.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable {
+                Toast
+                    .makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT)
+                    .show()
+            },
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+            Text(text = "更多详细数据", fontSize = 18.sp, fontWeight = FontWeight.Medium)
+            Icon(Icons.Outlined.ArrowForwardIos, null, tint = MaterialTheme.colors.secondary)
+        }
+    }
+}
+
+@Composable
+fun MessageCard(
+    viewModel: AppViewModel,
+    title: String,
+    subTitle: String,
+    time: String,
+    message: String,
+    drawable: Int,
+    modifier: Modifier,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .padding(top = 16.dp)
+            .defaultMinSize(minHeight = 156.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+    ) {
+        Row(
+            modifier = Modifier.padding(all = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(text = title, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = subTitle,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = MaterialTheme.colors.secondary
+                )
+                Text(
+                    text = time,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colors.secondary
+                )
+                Spacer(modifier = Modifier.height(14.dp))
+                Surface(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp)),
+                    color = MaterialTheme.colors.secondaryVariant
+                ) {
+                    Text(
+                        text = message,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colors.secondary,
+                        modifier = Modifier.padding(
+                            start = 8.dp,
+                            end = 8.dp,
+                            top = 6.dp,
+                            bottom = 7.dp
+                        )
+                    )
+                }
+            }
+            Image(
+                painterResource(drawable),
+                null,
+                modifier = modifier
+            )
+        }
+    }
+}
+

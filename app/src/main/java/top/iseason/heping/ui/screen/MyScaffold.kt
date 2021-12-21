@@ -35,7 +35,7 @@ fun MyScaffold(viewModel: AppViewModel) {
                         text = items[pagerState.currentPage],
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Black,
-                        modifier = Modifier.padding(top = 10.dp)
+                        modifier = Modifier.padding(top = 10.dp),
                     )
                 },
                 backgroundColor = MaterialTheme.colors.primaryVariant,
@@ -44,7 +44,7 @@ fun MyScaffold(viewModel: AppViewModel) {
         },
         bottomBar = {
             BottomNavigation(
-                backgroundColor = MaterialTheme.colors.background,
+                backgroundColor = MaterialTheme.colors.background
             ) {
                 items.forEachIndexed { index, item ->
                     BottomNavigationItem(
@@ -66,7 +66,7 @@ fun MyScaffold(viewModel: AppViewModel) {
                                 null
                             )
                         },
-                        label = { Text(item) },
+                        label = { Text(item, color = MaterialTheme.colors.onError) },
                         selected = pagerState.targetPage == index,
                         selectedContentColor = MaterialTheme.colors.primary,
                         unselectedContentColor = MaterialTheme.colors.onBackground,
@@ -87,7 +87,7 @@ fun MyScaffold(viewModel: AppViewModel) {
         { page: Int ->
             when (page) {
                 0 -> {
-                    HealthScreen(viewModel = viewModel)
+                    HealthScreen(viewModel)
                 }
                 1 -> {
 

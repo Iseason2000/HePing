@@ -32,7 +32,7 @@ import top.iseason.heping.utils.Util
 
 
 @Composable
-fun UsageWindow(modifier: Modifier = Modifier, viewModel: AppViewModel) {
+fun UsageWindow(viewModel: AppViewModel) {
 
     val viewState by viewModel.viewState.collectAsState()
     var isOpenSetting by remember { mutableStateOf(false) }
@@ -40,16 +40,15 @@ fun UsageWindow(modifier: Modifier = Modifier, viewModel: AppViewModel) {
         viewModel.updateAppInfo()
     }
     Surface(
-        modifier = modifier
-            .padding(vertical = 8.dp, horizontal = 16.dp)
+        modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(3))
+            .clip(RoundedCornerShape(8.dp))
     ) {
         val appInfo = viewState.appInfo
         if (appInfo.isNotEmpty()) {
             var totalTime = 0L
-            appInfo.forEach { totalTime += it.useTime }
-            val maxUseTime = appInfo[0].useTime
+            appInfo.forEach { totalTime += it.getTotalTime() }
+            val maxUseTime = appInfo[0].getTotalTime()
             Column(
                 modifier = Modifier
                     .padding(vertical = 16.dp, horizontal = 24.dp)
@@ -130,7 +129,7 @@ fun UsageWindow(modifier: Modifier = Modifier, viewModel: AppViewModel) {
             text = {
                 Column {
                     Text(
-                        text = "使用时间: ${Util.longTimeFormat(appInfo.useTime)}",
+                        text = "使用时间: ${Util.longTimeFormat(appInfo.getTotalTime())}",
                         fontSize = 16.sp
                     )
                     Text(
@@ -158,10 +157,10 @@ fun UsageWindow(modifier: Modifier = Modifier, viewModel: AppViewModel) {
 
 @Composable
 fun Items(appInfoList: List<AppInfo>, maxUseTime: Long, viewModel: AppViewModel) {
-    val grayColor = MaterialTheme.colors.onBackground
+    val grayColor = MaterialTheme.colors.onError
     Column(horizontalAlignment = Alignment.End) {
         Text(
-            text = Util.longTimeFormat(appInfoList[0].useTime),
+            text = Util.longTimeFormat(appInfoList[0].getTotalTime()),
             color = grayColor,
             fontSize = 8.sp,
             fontWeight = FontWeight.Normal
@@ -183,18 +182,22 @@ fun Items(appInfoList: List<AppInfo>, maxUseTime: Long, viewModel: AppViewModel)
     ) {
         itemsIndexed(appInfoList) { count, appInfo ->
             run {
-                val percentage = (appInfo.useTime.toFloat() / maxUseTime.toFloat())
+                val percentage = (appInfo.getTotalTime().toFloat() / maxUseTime.toFloat())
                 Row(verticalAlignment = Alignment.Bottom) {
                     Column(modifier = Modifier
                         .animateContentSize()
                         .clickable {
                             viewModel.setSelectedApp(count)
                         }) {
+                        val barColor =
+                            if (MaterialTheme.colors.isLight)
+                                MaterialTheme.colors.primaryVariant else
+                                MaterialTheme.colors.primary
                         Box(
                             modifier = Modifier
                                 .size(17.dp, (150.0 * percentage).toInt().dp)
                                 .clip(RoundedCornerShape(20))
-                                .background(color = MaterialTheme.colors.primaryVariant)
+                                .background(color = barColor)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Image(

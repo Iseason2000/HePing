@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "top.iseason.heping"
-        minSdk 21
+        minSdk 22
         targetSdk 31
         versionCode 1
         versionName "1.0"
