@@ -14,6 +14,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowForwardIos
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,6 +25,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import top.iseason.heping.R
 import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.model.ModelManager
@@ -41,55 +45,67 @@ fun HealthScreen(viewModel: AppViewModel) {
                 ),
             )
         }
-    LazyColumn(modifier = Modifier.padding(all = 16.dp)) {
-        item {
-            UsageWindow(viewModel = viewModel)
-        }
-        item {
-            MoreAppInfo(viewModel = viewModel)
-        }
-        item {
-            MessageCard(
-                viewModel = viewModel,
-                title = "睡眠",
-                subTitle = "昨晚睡眠",
-                time = "7小时52分钟",
-                message = "未设定睡眠计划",
-                drawable = R.drawable.moon,
-                modifier = Modifier.padding(top = 26.dp, end = 33.dp)
-            ) {
-                Toast.makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT).show()
-            }
-        }
-        item {
-            MessageCard(
-                viewModel = viewModel,
-                title = "疲劳记录",
-                subTitle = "目前已连续使用屏幕",
-                time = "7小时52分钟",
-                message = "未启用连续使用提醒",
-                drawable = R.drawable.eyes_tired,
-                modifier = Modifier.padding(top = 42.dp, end = 24.dp)
-            ) {
-                Toast.makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT)
-                    .show()
-            }
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
 
-        }
-        item {
-            MessageCard(
-                viewModel = viewModel,
-                title = "久坐检测",
-                subTitle = "今天检测到久坐",
-                time = "3次",
-                message = "未启用久坐提醒",
-                drawable = R.drawable.chair,
-                modifier = Modifier.padding(top = 22.dp, end = 41.dp)
-            ) {
-                Toast.makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT).show()
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing),
+        onRefresh = { viewModel.refresh() },
+    ) {
+        LazyColumn(modifier = Modifier.padding(all = 16.dp)) {
+            item {
+                UsageWindow(viewModel = viewModel)
             }
+            item {
+                MoreAppInfo(viewModel = viewModel)
+            }
+            item {
+                MessageCard(
+                    viewModel = viewModel,
+                    title = "睡眠",
+                    subTitle = "昨晚睡眠",
+                    time = "7小时52分钟",
+                    message = "未设定睡眠计划",
+                    drawable = R.drawable.moon,
+                    modifier = Modifier
+                        .padding(top = 15.dp, end = 23.dp)
+                ) {
+                    Toast.makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+            item {
+                MessageCard(
+                    viewModel = viewModel,
+                    title = "疲劳记录",
+                    subTitle = "目前已连续使用屏幕",
+                    time = "7小时52分钟",
+                    message = "未启用连续使用提醒",
+                    drawable = R.drawable.eyes,
+                    modifier = Modifier
+                        .padding(top = 7.dp, end = 6.dp)
+                ) {
+                    Toast.makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT)
+                        .show()
+                }
+
+            }
+            item {
+                MessageCard(
+                    viewModel = viewModel,
+                    title = "久坐检测",
+                    subTitle = "今天检测到久坐",
+                    time = "3次",
+                    message = "未启用久坐提醒",
+                    drawable = R.drawable.chair,
+                    modifier = Modifier
+                        .padding(top = 5.dp, end = 25.dp)
+                ) {
+                    Toast.makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+            item { Spacer(modifier = Modifier.padding(top = 64.dp)) }
         }
-        item { Spacer(modifier = Modifier.padding(top = 64.dp)) }
     }
 }
 
@@ -175,11 +191,13 @@ fun MessageCard(
                     )
                 }
             }
+
             Image(
                 painterResource(drawable),
                 null,
                 modifier = modifier
             )
+
         }
     }
 }

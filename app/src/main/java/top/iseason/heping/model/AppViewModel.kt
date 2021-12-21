@@ -9,13 +9,18 @@ import top.iseason.heping.model.ModelManager.queryUsageStatsAllDay
 
 class AppViewModel : ViewModel() {
     private val _viewState: MutableStateFlow<AppViewState> = MutableStateFlow(AppViewState())
+    private val _isRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val viewState = _viewState.asStateFlow()
-    fun emitState(viewState: AppViewState) {
+    val isRefreshing = _isRefreshing.asStateFlow()
+    private fun emitState(viewState: AppViewState) {
         _viewState.value = viewState
     }
 
-    fun updateAppInfo() {
+    fun refresh() {
+        updateAppInfo()
+    }
 
+    fun updateAppInfo() {
         viewModelScope.launch {
             emitState(viewState.value.copy(appInfo = queryUsageStatsAllDay().sortedByDescending { it.getTotalTime() }))
         }
@@ -32,3 +37,4 @@ data class AppViewState(
     val appInfo: List<AppInfo> = emptyList(),
     val selectApp: Int = -1
 )
+

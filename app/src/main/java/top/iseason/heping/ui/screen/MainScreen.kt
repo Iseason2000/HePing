@@ -60,7 +60,7 @@ fun MyScaffold(viewModel: AppViewModel) {
                                             R.drawable.icon_focus
                                         else -> if (pagerState.targetPage == index)
                                             R.drawable.icon_mine_select else
-                                            R.drawable.icon_mine
+                                            R.drawable.icon_me
                                     }
                                 ),
                                 null
@@ -73,7 +73,6 @@ fun MyScaffold(viewModel: AppViewModel) {
                         onClick = { selectedItem = index }
                     )
                 }
-
             }
         }
 

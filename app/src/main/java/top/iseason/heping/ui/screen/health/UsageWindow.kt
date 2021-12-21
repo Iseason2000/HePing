@@ -193,12 +193,13 @@ fun Items(appInfoList: List<AppInfo>, maxUseTime: Long, viewModel: AppViewModel)
                             if (MaterialTheme.colors.isLight)
                                 MaterialTheme.colors.primaryVariant else
                                 MaterialTheme.colors.primary
-                        Box(
-                            modifier = Modifier
-                                .size(17.dp, (150.0 * percentage).toInt().dp)
-                                .clip(RoundedCornerShape(20))
-                                .background(color = barColor)
-                        )
+                        if (percentage > 0.01)
+                            Box(
+                                modifier = Modifier
+                                    .size(17.dp, (150.0 * percentage).toInt().dp)
+                                    .clip(RoundedCornerShape(20))
+                                    .background(color = barColor)
+                            )
                         Spacer(modifier = Modifier.height(8.dp))
                         Image(
                             bitmap = appInfo.icon,

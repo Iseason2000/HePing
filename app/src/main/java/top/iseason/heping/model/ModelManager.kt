@@ -13,7 +13,7 @@ import java.util.*
 
 
 object ModelManager {
-    lateinit var usageStatsManager: UsageStatsManager
+    private lateinit var usageStatsManager: UsageStatsManager
     private lateinit var activity: MainActivity
     private lateinit var packageManager: PackageManager
 
@@ -27,7 +27,9 @@ object ModelManager {
 
     private fun getPackageManager() = this.packageManager
 
-    //核心算法
+    /**
+     * 核心算法，按小时统计应用前台使用时间
+     */
     fun queryUsageStatsAllDay(): List<AppInfo> {
         //时间范围 1天
         val calendar = Calendar.getInstance().apply {
@@ -73,14 +75,15 @@ object ModelManager {
                     packName,
                     PackageManager.GET_META_DATA
                 )
+                appInfo.icon = applicationInfo.loadIcon(packageManager).toBitmap().asImageBitmap()
             } catch (e: Exception) {
                 continue
             }
-            if ((applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 1 ||
-                (applicationInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 1
-            ) continue
+            //过滤系统应用
+//            if ((applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 1 ||
+//                (applicationInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 1
+//            ) continue
             appInfo.appName = packageManager.getApplicationLabel(applicationInfo).toString()
-            appInfo.icon = applicationInfo.loadIcon(packageManager).toBitmap().asImageBitmap()
 
             //从昨天用到现在的补偿
             if (fistEvent.eventType == UsageEvents.Event.ACTIVITY_PAUSED || fistEvent.eventType == UsageEvents.Event.ACTIVITY_STOPPED) {
@@ -90,7 +93,7 @@ object ModelManager {
                 while (fistTime >= startTime + 3600000L * (expand + 1)) expand++
                 timeZone = expand
                 startTimeN = startTime + 3600000L * expand
-                appInfo.useTime[timeZone] = fistEvent.timeStamp - startTimeN
+                appInfo.useTime[timeZone] = fistTime - startTimeN
             }
             for (index in 0 until size - 1) {
                 val event1 = eventList[index]
@@ -100,7 +103,8 @@ object ModelManager {
                 //开始分配时间区间
                 val time1 = event1.timeStamp
                 val time2 = event2.timeStamp
-                if (time2 - time1 > 1000L) launchCount++
+                //启动阈值
+                if (time2 - time1 > 3000L) launchCount++
                 //时间区域
                 if (time1 in startTimeN..(startTimeN + 3600000L)) {
                     //前端位于区间内
