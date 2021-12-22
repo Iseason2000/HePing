@@ -118,9 +118,9 @@ fun MoreAppInfo(viewModel: AppViewModel) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .clickable {
-                Toast
-                    .makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT)
-                    .show()
+                ModelManager
+                    .getNavController()
+                    .navigate("healthTotal")
             },
     ) {
         Row(

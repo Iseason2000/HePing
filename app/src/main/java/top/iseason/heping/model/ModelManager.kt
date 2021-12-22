@@ -1,5 +1,6 @@
 package top.iseason.heping.model
 
+import android.annotation.SuppressLint
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context.USAGE_STATS_SERVICE
@@ -8,6 +9,7 @@ import android.content.pm.PackageManager
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
+import androidx.navigation.NavHostController
 import top.iseason.heping.MainActivity
 import java.util.*
 
@@ -16,14 +18,22 @@ object ModelManager {
     private lateinit var usageStatsManager: UsageStatsManager
     private lateinit var activity: MainActivity
     private lateinit var packageManager: PackageManager
+    private val viewModel = AppViewModel()
 
+    @SuppressLint("StaticFieldLeak")
+    private lateinit var navController: NavHostController
     fun setMainActivity(activity: MainActivity) {
         this.activity = activity
         usageStatsManager = activity.getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
         packageManager = activity.packageManager
     }
 
+    fun setNavHostController(navController: NavHostController) {
+        this.navController = navController
+    }
+
     fun getMainActivity() = this.activity
+    fun getNavController() = this.navController
 
     private fun getPackageManager() = this.packageManager
 
@@ -138,9 +148,12 @@ object ModelManager {
                     startTimeN += (3600000L * expand)
                 }
             }
-            //还在运行，不计入时间,但统计次数
+            //还在运行
             val lastEvent = eventList[size - 1]
-            if (lastEvent.eventType == UsageEvents.Event.ACTIVITY_RESUMED) launchCount++
+            if (lastEvent.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+                launchCount++
+                appInfo.useTime[timeZone] += (System.currentTimeMillis() - lastEvent.timeStamp)
+            }
             //时间统计完毕，设置其他属性
             appInfo.launchCount = launchCount
             infoList.add(appInfo)

@@ -12,6 +12,7 @@ class AppViewModel : ViewModel() {
     private val _isRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val viewState = _viewState.asStateFlow()
     val isRefreshing = _isRefreshing.asStateFlow()
+
     private fun emitState(viewState: AppViewState) {
         _viewState.value = viewState
     }
@@ -22,7 +23,9 @@ class AppViewModel : ViewModel() {
 
     fun updateAppInfo() {
         viewModelScope.launch {
-            emitState(viewState.value.copy(appInfo = queryUsageStatsAllDay().sortedByDescending { it.getTotalTime() }))
+            Thread {
+                emitState(viewState.value.copy(appInfo = queryUsageStatsAllDay().sortedByDescending { it.getTotalTime() }))
+            }.start()
         }
     }
 

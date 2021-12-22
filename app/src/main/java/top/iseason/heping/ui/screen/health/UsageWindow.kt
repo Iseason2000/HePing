@@ -20,11 +20,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.*
+import top.iseason.heping.R
 import top.iseason.heping.model.AppInfo
 import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.model.ModelManager
@@ -43,6 +46,7 @@ fun UsageWindow(viewModel: AppViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
+            .animateContentSize()
     ) {
         val appInfo = viewState.appInfo
         if (appInfo.isNotEmpty()) {
@@ -66,34 +70,37 @@ fun UsageWindow(viewModel: AppViewModel) {
                 Items(appInfo, maxUseTime, viewModel)
             }
         } else {
-            val mode = (ModelManager.getMainActivity()
-                .getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager)
-                .checkOpNoThrow(
-                    "android:get_usage_stats",
-                    Process.myUid(), ModelManager.getMainActivity().packageName
-                )
-            val hasPermission = mode == AppOpsManager.MODE_ALLOWED
-            if (hasPermission) isOpenSetting = false
+
+            if (hasPermission()) {
+                isOpenSetting = false
+            }
             if (!isOpenSetting)
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.padding(vertical = 80.dp)
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = "你还没有授予权限，将无法显示应用统计!")
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Button(onClick = {
-                            isOpenSetting = true
-                            Toast.makeText(
-                                ModelManager.getMainActivity(),
-                                "在设置里找到 和屏 然后开启权限!",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            ModelManager.getMainActivity()
-                                .startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
-                        }) {
-                            Text(text = "去授予")
+                    if (!hasPermission())
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = "你还没有授予权限，将无法显示应用统计!")
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Button(onClick = {
+                                isOpenSetting = true
+                                Toast.makeText(
+                                    ModelManager.getMainActivity(),
+                                    "在设置里找到 和屏 然后开启权限!",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                ModelManager.getMainActivity()
+                                    .startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+                            }) {
+                                Text(text = "去授予")
+                            }
                         }
+                    else Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.height(50.dp)
+                    ) {
+                        Loading(Modifier.scale(2F), 3F)
                     }
                 }
             else Box(
@@ -158,6 +165,8 @@ fun UsageWindow(viewModel: AppViewModel) {
 @Composable
 fun Items(appInfoList: List<AppInfo>, maxUseTime: Long, viewModel: AppViewModel) {
     val grayColor = MaterialTheme.colors.onError
+    var heightPre by remember { mutableStateOf(0.0F) }
+    LaunchedEffect(Unit) { heightPre = 1.0F }
     Column(horizontalAlignment = Alignment.End) {
         Text(
             text = Util.longTimeFormat(appInfoList[0].getTotalTime()),
@@ -193,20 +202,22 @@ fun Items(appInfoList: List<AppInfo>, maxUseTime: Long, viewModel: AppViewModel)
                             if (MaterialTheme.colors.isLight)
                                 MaterialTheme.colors.primaryVariant else
                                 MaterialTheme.colors.primary
-                        if (percentage > 0.01)
+                        if (percentage > 0.01) {
                             Box(
                                 modifier = Modifier
-                                    .size(17.dp, (150.0 * percentage).toInt().dp)
+                                    .size(17.dp, (150.0 * percentage * heightPre).toInt().dp)
                                     .clip(RoundedCornerShape(20))
                                     .background(color = barColor)
+                                    .animateContentSize()
                             )
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
                         Image(
                             bitmap = appInfo.icon,
                             contentDescription = appInfo.appName,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(20))
-                                .requiredSize(17.dp, 17.dp)
+                                .size(17.dp, 17.dp)
                         )
                     }
                     Spacer(
@@ -232,5 +243,28 @@ fun Items(appInfoList: List<AppInfo>, maxUseTime: Long, viewModel: AppViewModel)
     }
 }
 
+@Composable
+fun Loading(modifier: Modifier, speed: Float = 1F) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading))
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        isPlaying = true,
+        speed = speed,
+        iterations = LottieConstants.IterateForever
+    )
+    LottieAnimation(
+        composition = composition,
+        progress = progress,
+        modifier = modifier
+    )
+}
 
-
+fun hasPermission(): Boolean {
+    val mode = (ModelManager.getMainActivity()
+        .getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager)
+        .checkOpNoThrow(
+            "android:get_usage_stats",
+            Process.myUid(), ModelManager.getMainActivity().packageName
+        )
+    return mode == AppOpsManager.MODE_ALLOWED
+}
