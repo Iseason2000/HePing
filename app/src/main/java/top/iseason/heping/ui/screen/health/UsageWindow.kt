@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,7 @@ import top.iseason.heping.R
 import top.iseason.heping.model.AppInfo
 import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.model.ModelManager
+import top.iseason.heping.model.getTotalTime
 import top.iseason.heping.utils.Util
 
 
@@ -39,9 +41,6 @@ fun UsageWindow(viewModel: AppViewModel) {
 
     val viewState by viewModel.viewState.collectAsState()
     var isOpenSetting by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        viewModel.updateAppInfo()
-    }
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,8 +49,7 @@ fun UsageWindow(viewModel: AppViewModel) {
     ) {
         val appInfo = viewState.appInfo
         if (appInfo.isNotEmpty()) {
-            var totalTime = 0L
-            appInfo.forEach { totalTime += it.getTotalTime() }
+            val totalTime = appInfo.getTotalTime()
             val maxUseTime = appInfo[0].getTotalTime()
             Column(
                 modifier = Modifier
@@ -67,10 +65,26 @@ fun UsageWindow(viewModel: AppViewModel) {
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                 )
+                val yTotalTime = viewState.yesterdayAppInfo.getTotalTime()
+                val t = totalTime - yTotalTime
+
+                if (t > 0)
+                    Text(
+                        text = "较昨日增加${Util.longTimeFormat(t)} ▲",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color(0xFFFA421C)
+                    )
+                else
+                    Text(
+                        text = "较昨日减少${Util.longTimeFormat(-t)} ▼",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color(0xFF07C192)
+                    )
                 Items(appInfo, maxUseTime, viewModel)
             }
         } else {
-
             if (hasPermission()) {
                 isOpenSetting = false
             }
@@ -100,6 +114,10 @@ fun UsageWindow(viewModel: AppViewModel) {
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.height(50.dp)
                     ) {
+                        LaunchedEffect(Unit) {
+                            viewModel.updateAppInfo()
+                            viewModel.loadPastUsage()
+                        }
                         Loading(Modifier.scale(2F), 3F)
                     }
                 }

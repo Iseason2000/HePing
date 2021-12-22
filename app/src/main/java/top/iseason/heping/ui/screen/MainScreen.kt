@@ -66,10 +66,16 @@ fun MyScaffold(viewModel: AppViewModel) {
                                 null
                             )
                         },
-                        label = { Text(item, color = MaterialTheme.colors.onError) },
+                        label = {
+                            Text(
+                                item,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                        },
                         selected = pagerState.targetPage == index,
                         selectedContentColor = MaterialTheme.colors.primary,
-                        unselectedContentColor = MaterialTheme.colors.onBackground,
+                        unselectedContentColor = MaterialTheme.colors.onError,
                         onClick = { selectedItem = index }
                     )
                 }

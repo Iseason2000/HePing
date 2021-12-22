@@ -5,6 +5,7 @@ object Util {
     fun longTimeFormat(time: Long): String {
         val hours = (time / 3600000).toInt()
         val minutes = (time - hours * 3600000) / 60000
+        if (hours == 0) return "${minutes}分钟"
         return "${hours}小时${minutes}分钟"
     }
 

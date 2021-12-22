@@ -30,12 +30,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import top.iseason.heping.model.AppInfo
-import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.model.ModelManager
 import top.iseason.heping.utils.Util
 
 @Composable
-fun HealthTotalInfo(viewModel: AppViewModel) {
+fun HealthTotalInfo() {
+    val viewModel = ModelManager.getViewModel()
     val viewState by viewModel.viewState.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.updateAppInfo()
@@ -255,7 +255,13 @@ fun TotalInfo(appInfo: List<AppInfo>) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.padding(bottom = 16.dp)
+                            modifier = Modifier
+                                .padding(bottom = 16.dp)
+                                .clickable {
+                                    ModelManager
+                                        .getNavController()
+                                        .navigate("healthAppDetail/${item.packageName}")
+                                }
                         ) {
                             Image(
                                 bitmap = item.icon,

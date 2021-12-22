@@ -16,6 +16,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.model.ModelManager
 import top.iseason.heping.ui.screen.MyScaffold
+import top.iseason.heping.ui.screen.health.HealthAppDetail
 import top.iseason.heping.ui.screen.health.HealthTotalInfo
 import top.iseason.heping.ui.theme.HePingTheme
 
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
                 }
                 val navController = rememberAnimatedNavController()
                 ModelManager.setNavHostController(navController)
+                ModelManager.setViewModel(viewModel)
                 AnimatedNavHost(navController = navController, startDestination = "main") {
                     composable(route = "main", enterTransition = {
                         EnterTransition.None
@@ -51,7 +53,19 @@ class MainActivity : ComponentActivity() {
                     }, enterTransition = {
                         slideInHorizontally()
                     }) {
-                        HealthTotalInfo(viewModel)
+                        HealthTotalInfo()
+                    }
+                    composable(route = "healthAppDetail/{packageName}", exitTransition = {
+                        slideOutHorizontally(targetOffsetX = { -it })
+                    }, enterTransition = {
+                        slideInHorizontally()
+                    }) {
+                        val packageName = it.arguments?.getString("packageName")
+                        if (packageName == null) {
+                            navController.popBackStack()
+                            return@composable
+                        }
+                        HealthAppDetail(packageName)
                     }
                 }
 

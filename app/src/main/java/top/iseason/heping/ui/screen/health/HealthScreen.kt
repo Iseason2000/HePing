@@ -118,9 +118,17 @@ fun MoreAppInfo(viewModel: AppViewModel) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .clickable {
-                ModelManager
-                    .getNavController()
-                    .navigate("healthTotal")
+                if (hasPermission())
+                    ModelManager
+                        .getNavController()
+                        .navigate("healthTotal") else
+                    Toast
+                        .makeText(
+                            ModelManager.getMainActivity(),
+                            "你还没有开启权限,无法查看!",
+                            Toast.LENGTH_SHORT
+                        )
+                        .show()
             },
     ) {
         Row(

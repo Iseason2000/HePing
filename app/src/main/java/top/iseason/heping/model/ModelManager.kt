@@ -18,7 +18,7 @@ object ModelManager {
     private lateinit var usageStatsManager: UsageStatsManager
     private lateinit var activity: MainActivity
     private lateinit var packageManager: PackageManager
-    private val viewModel = AppViewModel()
+    private var viewModel = AppViewModel()
 
     @SuppressLint("StaticFieldLeak")
     private lateinit var navController: NavHostController
@@ -26,6 +26,11 @@ object ModelManager {
         this.activity = activity
         usageStatsManager = activity.getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
         packageManager = activity.packageManager
+    }
+
+    fun getViewModel() = viewModel
+    fun setViewModel(model: AppViewModel) {
+        viewModel = model
     }
 
     fun setNavHostController(navController: NavHostController) {
@@ -39,14 +44,17 @@ object ModelManager {
 
     /**
      * 核心算法，按小时统计应用前台使用时间
+     * @param day 时间偏差,0为今天
+     *
      */
-    fun queryUsageStatsAllDay(): List<AppInfo> {
+    fun queryUsageStatsForDays(day: Int): List<AppInfo> {
         //时间范围 1天
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
+            add(Calendar.DATE, -day)
         }
         val startTime = calendar.timeInMillis
         calendar.add(Calendar.DATE, 1)
@@ -108,7 +116,7 @@ object ModelManager {
             for (index in 0 until size - 1) {
                 val event1 = eventList[index]
                 val event2 = eventList[index + 1]
-                if (event1.eventType != UsageEvents.Event.ACTIVITY_RESUMED) continue
+                if (event1.eventType == UsageEvents.Event.ACTIVITY_PAUSED) continue
                 if (!(event2.eventType == UsageEvents.Event.ACTIVITY_STOPPED || event2.eventType == UsageEvents.Event.ACTIVITY_PAUSED)) continue
                 //开始分配时间区间
                 val time1 = event1.timeStamp
@@ -148,11 +156,14 @@ object ModelManager {
                     startTimeN += (3600000L * expand)
                 }
             }
-            //还在运行
+            //尾切
             val lastEvent = eventList[size - 1]
             if (lastEvent.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
                 launchCount++
-                appInfo.useTime[timeZone] += (System.currentTimeMillis() - lastEvent.timeStamp)
+                if (day == 0)
+                    appInfo.useTime[timeZone] += (System.currentTimeMillis() - lastEvent.timeStamp)
+                else
+                    appInfo.useTime[timeZone] += (endTime - lastEvent.timeStamp)
             }
             //时间统计完毕，设置其他属性
             appInfo.launchCount = launchCount
