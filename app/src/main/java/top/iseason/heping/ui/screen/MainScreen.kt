@@ -22,8 +22,8 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import top.iseason.heping.R
+import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
-import top.iseason.heping.model.ModelManager
 import top.iseason.heping.ui.screen.health.HealthAppDetail
 import top.iseason.heping.ui.screen.health.HealthScreen
 import top.iseason.heping.ui.screen.health.HealthTotalInfo

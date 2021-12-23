@@ -1,4 +1,4 @@
-package top.iseason.heping.model
+package top.iseason.heping.manager
 
 import android.annotation.SuppressLint
 import android.app.usage.UsageEvents
@@ -11,6 +11,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavHostController
 import top.iseason.heping.MainActivity
+import top.iseason.heping.model.AppViewModel
+import top.iseason.heping.utils.Util
 import java.util.*
 
 
@@ -23,7 +25,7 @@ object ModelManager {
     @SuppressLint("StaticFieldLeak")
     private lateinit var navController: NavHostController
     fun setMainActivity(activity: MainActivity) {
-        this.activity = activity
+        ModelManager.activity = activity
         usageStatsManager = activity.getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
         packageManager = activity.packageManager
     }
@@ -34,13 +36,13 @@ object ModelManager {
     }
 
     fun setNavHostController(navController: NavHostController) {
-        this.navController = navController
+        ModelManager.navController = navController
     }
 
-    fun getMainActivity() = this.activity
-    fun getNavController() = this.navController
+    fun getMainActivity() = activity
+    fun getNavController() = navController
 
-    private fun getPackageManager() = this.packageManager
+    private fun getPackageManager() = packageManager
 
     /**
      * 核心算法，按小时统计应用前台使用时间
@@ -49,13 +51,7 @@ object ModelManager {
      */
     fun queryUsageStatsForDays(day: Int): List<AppInfo> {
         //时间范围 1天
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-            add(Calendar.DATE, -day)
-        }
+        val calendar = Util.getDate(-day)
         val startTime = calendar.timeInMillis
         calendar.add(Calendar.DATE, 1)
         val endTime = calendar.timeInMillis
@@ -65,6 +61,7 @@ object ModelManager {
         val usageEvents = usageStatsManager.queryEvents(startTime, endTime)
         val infoList = mutableListOf<AppInfo>()
         //按包名分类
+
         while (usageEvents.hasNextEvent()) {
             currentEvent = UsageEvents.Event()
             usageEvents.getNextEvent(currentEvent)

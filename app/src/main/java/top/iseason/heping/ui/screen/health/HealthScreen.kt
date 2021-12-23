@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.sp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import top.iseason.heping.R
+import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
-import top.iseason.heping.model.ModelManager
 
 @Composable
 fun HealthScreen(viewModel: AppViewModel) {

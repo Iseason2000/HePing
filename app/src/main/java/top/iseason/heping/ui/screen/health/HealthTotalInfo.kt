@@ -29,8 +29,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import top.iseason.heping.model.AppInfo
-import top.iseason.heping.model.ModelManager
+import top.iseason.heping.manager.AppInfo
+import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.utils.Util
 
 @Composable
@@ -60,7 +60,7 @@ fun HealthTotalInfo() {
             ) {
                 Icon(
                     Icons.Filled.ArrowBackIos, null,
-                    tint = contentColorFor(MaterialTheme.colors.primaryVariant)
+                    tint = Color.White
                 )
                 Text(
                     text = "详细使用情况",
@@ -73,10 +73,10 @@ fun HealthTotalInfo() {
         backgroundColor = Color(0xFFF3F6F5)
     ) {
         Column(modifier = Modifier.padding(all = 16.dp)) {
-            val array = Array(12) { 0L }
+            val array = Array(24) { 0L }
             for (appInfo in viewState.appInfo) {
                 for ((i, l) in appInfo.useTime.withIndex()) {
-                    array[i / 2] += l
+                    array[i] += l
                 }
             }
             TotalBar(array)
@@ -86,11 +86,12 @@ fun HealthTotalInfo() {
 }
 
 @Composable
-fun TotalBar(data: Array<Long> = Array(12) { 0L }) {
-    var maxTime = 0L
-    for (datum in data) {
-        if (datum > maxTime) maxTime = datum
+fun TotalBar(data: Array<Long> = Array(24) { 0L }) {
+    val data12 = Array(12) { 0L }
+    for ((i, l) in data.withIndex()) {
+        data12[i / 2] += l
     }
+    val maxTime = data12.maxOf { it }
     if (maxTime == 0L) {
         return
     }
@@ -120,8 +121,8 @@ fun TotalBar(data: Array<Long> = Array(12) { 0L }) {
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onTap = {
-                                val pointAt = (it.x / size.width * 12).toInt()
-                                val l = data[pointAt]
+                                val pointAt = (it.x / (size.width - 100) * 12).toInt()
+                                val l = data12[pointAt]
                                 if (l == 0L) return@detectTapGestures
                                 Toast
                                     .makeText(
@@ -138,6 +139,7 @@ fun TotalBar(data: Array<Long> = Array(12) { 0L }) {
             ) {
                 val height = size.height
                 val rate = height / 150
+                val actWidth = size.width - 30 * rate
                 val width = size.width
                 val pe = PathEffect.dashPathEffect(floatArrayOf(5F, 5F))
                 val textPaint = Paint().asFrameworkPaint().apply {
@@ -190,22 +192,22 @@ fun TotalBar(data: Array<Long> = Array(12) { 0L }) {
                     for ((i, time) in arrayOf("00:00", "06:00", "12:00", "18:00").withIndex()) {
                         it.nativeCanvas.drawText(
                             time,
-                            width / 4 * i - 5 * rate,
+                            actWidth / 4 * i - 5 * rate,
                             height + 15 * rate,
                             textPaint
                         )
                         it.nativeCanvas.drawLine(
-                            width / 4 * i,
+                            actWidth / 4 * i,
                             height,
-                            width / 4 * i,
+                            actWidth / 4 * i,
                             height - 5 * rate,
                             textPaint
                         )
                     }
                 }
-                for ((index, datum) in data.withIndex()) {
+                for ((index, datum) in data12.withIndex()) {
                     val h = datum.toFloat() / (maxHour * 3600000L).toFloat() * height * heightPre
-                    val w = width / 24
+                    val w = actWidth / 24
                     drawRoundRect(
                         color = primaryColor,
                         topLeft = Offset(0 + w * index * 2, height - h),

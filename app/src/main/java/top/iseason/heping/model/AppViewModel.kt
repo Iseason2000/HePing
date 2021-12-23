@@ -5,8 +5,11 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import top.iseason.heping.model.ModelManager.queryUsageStatsForDays
+import top.iseason.heping.manager.AppInfo
+import top.iseason.heping.manager.ConfigManager
+import top.iseason.heping.manager.ModelManager.queryUsageStatsForDays
 import top.iseason.heping.ui.screen.health.hasPermission
+import top.iseason.heping.utils.Util
 
 class AppViewModel : ViewModel() {
     private val _viewState: MutableStateFlow<AppViewState> = MutableStateFlow(AppViewState())
@@ -25,9 +28,16 @@ class AppViewModel : ViewModel() {
 
     fun updateAppInfo() {
         Thread {
+            val yesterday = Util.getDate(-1)
+            val yesterdayLong = ConfigManager.getLong("Yesterday")
+            if (yesterdayLong != yesterday.timeInMillis) {
+                val totalTime = queryUsageStatsForDays(1).sortedByDescending { it.getTotalTime() }
+                    .getTotalTime()
+                ConfigManager.setLong("YesterdayUseTime", totalTime)
+                ConfigManager.setLong("Yesterday", yesterday.timeInMillis)
+            }
             emitState(
-                viewState.value.copy(appInfo = queryUsageStatsForDays(0).sortedByDescending { it.getTotalTime() },
-                    yesterdayAppInfo = queryUsageStatsForDays(1).sortedByDescending { it.getTotalTime() })
+                viewState.value.copy(appInfo = queryUsageStatsForDays(0).sortedByDescending { it.getTotalTime() })
             )
         }.start()
     }
@@ -38,7 +48,7 @@ class AppViewModel : ViewModel() {
             viewModelScope.launch {
                 Thread {
                     val mutableListOf = mutableListOf<List<AppInfo>>()
-                    for (i in 1..6) {
+                    for (i in 1..7) {
                         mutableListOf.add(queryUsageStatsForDays(i).sortedByDescending {
                             it.getTotalTime()
                         })
@@ -72,7 +82,6 @@ class AppViewModel : ViewModel() {
                     mutableListOf.add(appInfo)
                     break
                 }
-
             }
         }
         return mutableListOf
@@ -81,7 +90,6 @@ class AppViewModel : ViewModel() {
 
 data class AppViewState(
     val appInfo: List<AppInfo> = emptyList(),
-    val yesterdayAppInfo: List<AppInfo> = emptyList(),
     val selectApp: Int = -1
 )
 

@@ -29,9 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.*
 import top.iseason.heping.R
-import top.iseason.heping.model.AppInfo
+import top.iseason.heping.manager.AppInfo
+import top.iseason.heping.manager.ConfigManager
+import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
-import top.iseason.heping.model.ModelManager
 import top.iseason.heping.model.getTotalTime
 import top.iseason.heping.utils.Util
 
@@ -65,7 +66,7 @@ fun UsageWindow(viewModel: AppViewModel) {
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                 )
-                val yTotalTime = viewState.yesterdayAppInfo.getTotalTime()
+                val yTotalTime = ConfigManager.getLong("YesterdayUseTime")
                 val t = totalTime - yTotalTime
 
                 if (t > 0)
