@@ -31,7 +31,15 @@ import kotlin.math.roundToInt
 
 
 @Composable
-fun AppLimiter(packName: String) {
+fun AppLimiter(
+    key: String,
+    mainTitle: String,
+    subTitle: String,
+    value1: Int,
+    value2: Int,
+    value3: Int,
+    maxValue: Int = 150
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -40,25 +48,25 @@ fun AppLimiter(packName: String) {
         var limitTime by remember { mutableStateOf(0) }
         var offsetX by remember { mutableStateOf(0F) }
         LaunchedEffect(Unit) {
-            if (ConfigManager.hasKey("TimeLimit-$packName")) {
-                limitTime = ConfigManager.getInt("TimeLimit-$packName")
-                offsetX = limitTime.toFloat() / 150 * 220
+            if (ConfigManager.hasKey(key)) {
+                limitTime = ConfigManager.getInt(key)
+                offsetX = limitTime.toFloat() / maxValue * 220
             }
         }
         DisposableEffect(Unit) {
             onDispose {
                 println(limitTime)
-                ConfigManager.setInt("TimeLimit-$packName", limitTime)
+                ConfigManager.setInt(key, limitTime)
             }
         }
         Column(modifier = Modifier.padding(all = 16.dp)) {
             Text(
-                text = "应用限额设置",
+                text = mainTitle,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "单日使用此应用达到指定时长（分钟）时将提醒您",
+                text = subTitle,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Normal,
                 color = MaterialTheme.colors.onError
@@ -68,22 +76,22 @@ fun AppLimiter(packName: String) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                limitTime = (offsetX / 220 * 150).toInt()
+                limitTime = (offsetX / 220 * maxValue).toInt()
                 CountButton("关闭", limitTime, 0) {
                     limitTime = 0
-                    offsetX = limitTime.toFloat() / 150 * 220
+                    offsetX = limitTime.toFloat() / maxValue * 220
                 }
-                CountButton("30", limitTime, 30) {
-                    limitTime = 30
-                    offsetX = limitTime.toFloat() / 150 * 220
+                CountButton(value1.toString(), limitTime, value1) {
+                    limitTime = value1
+                    offsetX = limitTime.toFloat() / maxValue * 220
                 }
-                CountButton("60", limitTime, 60) {
-                    limitTime = 60
-                    offsetX = limitTime.toFloat() / 150 * 220
+                CountButton(value2.toString(), limitTime, value2) {
+                    limitTime = value2
+                    offsetX = limitTime.toFloat() / maxValue * 220
                 }
-                CountButton("90", limitTime, 90) {
-                    limitTime = 90
-                    offsetX = limitTime.toFloat() / 150 * 220
+                CountButton(value3.toString(), limitTime, value3) {
+                    limitTime = value3
+                    offsetX = limitTime.toFloat() / maxValue * 220
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -111,7 +119,7 @@ fun AppLimiter(packName: String) {
                                         val fl = (offset.x / size.width) * 220
                                         offsetX = fl
                                     },
-                                    onHorizontalDrag = { change: PointerInputChange, dragAmount: Float ->
+                                    onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
                                         val fl = (dragAmount / size.width) * 220
                                         if (offsetX + fl < 0 || offsetX + fl > 220) return@detectHorizontalDragGestures
                                         offsetX += fl
@@ -184,7 +192,7 @@ fun AppLimiter(packName: String) {
                             if (it.isFocused) text = "" else
                                 limitTime = text.toIntOrNull() ?: 0
                             isEdit = it.isFocused
-                            offsetX = limitTime.toFloat() / 150 * 220
+                            offsetX = limitTime.toFloat() / maxValue * 220
                         }
                 )
             }

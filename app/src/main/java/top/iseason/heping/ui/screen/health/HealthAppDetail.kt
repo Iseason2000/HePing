@@ -82,7 +82,16 @@ fun HealthAppDetail(packageName: String) {
             run {
                 item { TotalDays(appInfoForAllDays) }
                 item { Spacer(modifier = Modifier.height(16.dp)) }
-                item { AppLimiter(packageName) }
+                item {
+                    AppLimiter(
+                        key = "TimeLimit-$packageName",
+                        mainTitle = "应用限额设置",
+                        subTitle = "单日使用此应用达到指定时长（分钟）时将提醒您",
+                        value1 = 30,
+                        value2 = 60,
+                        value3 = 90
+                    )
+                }
                 item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         }
