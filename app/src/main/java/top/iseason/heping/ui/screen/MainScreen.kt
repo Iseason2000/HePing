@@ -43,14 +43,14 @@ fun MainScreen(viewModel: AppViewModel) {
         composable(route = "healthTotal", exitTransition = {
             slideOutHorizontally(targetOffsetX = { -it })
         }, enterTransition = {
-            slideInHorizontally()
+            slideInHorizontally(initialOffsetX = { -it })
         }) {
             HealthTotalInfo()
         }
         composable(route = "healthAppDetail/{packageName}", exitTransition = {
             slideOutHorizontally(targetOffsetX = { -it })
         }, enterTransition = {
-            slideInHorizontally()
+            slideInHorizontally(initialOffsetX = { -it })
         }) {
             val packageName = it.arguments?.getString("packageName")
             if (packageName == null) {

@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -22,6 +23,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,6 +38,7 @@ fun HealthAppDetail(packageName: String) {
     Box(modifier = Modifier.fillMaxSize())
     val appInfoForAllDays = ModelManager.getViewModel().getAppInfoForAllDays(packageName)
     val appName = appInfoForAllDays[0].appName
+    val focusManager = LocalFocusManager.current
     Scaffold(
         topBar = {
             Row(
@@ -66,12 +69,22 @@ fun HealthAppDetail(packageName: String) {
                 )
             }
         },
-        backgroundColor = Color(0xFFF3F6F5)
+        backgroundColor = Color(0xFFF3F6F5),
+        modifier = Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null
+        ) { focusManager.clearFocus() }
     ) {
-        Column(modifier = Modifier.padding(all = 16.dp)) {
-            TotalDays(appInfoForAllDays)
-            Spacer(modifier = Modifier.height(16.dp))
-            AppLimiter(packageName)
+        LazyColumn(
+            modifier = Modifier
+                .padding(top = 16.dp, bottom = 0.dp, start = 16.dp, end = 16.dp)
+        ) {
+            run {
+                item { TotalDays(appInfoForAllDays) }
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { AppLimiter(packageName) }
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+            }
         }
     }
 }

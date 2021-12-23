@@ -72,7 +72,10 @@ fun HealthTotalInfo() {
         },
         backgroundColor = Color(0xFFF3F6F5)
     ) {
-        Column(modifier = Modifier.padding(all = 16.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(top = 16.dp, bottom = 0.dp, start = 16.dp, end = 16.dp)
+        ) {
             val array = Array(24) { 0L }
             for (appInfo in viewState.appInfo) {
                 for ((i, l) in appInfo.useTime.withIndex()) {
@@ -87,14 +90,16 @@ fun HealthTotalInfo() {
 
 @Composable
 fun TotalBar(data: Array<Long> = Array(24) { 0L }) {
-    val data12 = Array(12) { 0L }
+    val dataRaw = Array(12) { 0L }
     for ((i, l) in data.withIndex()) {
-        data12[i / 2] += l
+        dataRaw[i / 2] += l
     }
-    val maxTime = data12.maxOf { it }
+    val maxTime = dataRaw.maxOf { it }
     if (maxTime == 0L) {
         return
     }
+    var data12 by remember { mutableStateOf(Array(12) { 0L }) }
+    data12 = dataRaw
     val maxHour = (maxTime / 3600000L).toInt() + 1
     Surface(
         modifier = Modifier
@@ -121,6 +126,7 @@ fun TotalBar(data: Array<Long> = Array(24) { 0L }) {
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onTap = {
+                                if (it.x >= size.width - 100) return@detectTapGestures
                                 val pointAt = (it.x / (size.width - 100) * 12).toInt()
                                 val l = data12[pointAt]
                                 if (l == 0L) return@detectTapGestures
