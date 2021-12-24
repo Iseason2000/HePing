@@ -30,7 +30,6 @@ import top.iseason.heping.ui.screen.controller.TimePicker
 import top.iseason.heping.utils.Util
 import java.util.*
 import kotlin.math.abs
-import kotlin.math.floor
 
 @Composable
 fun HealthSleep() {
@@ -125,12 +124,15 @@ fun SleepTime() {
     var totalStartHour = 0
     var totalEndHour = 0
     for (sleepTimeForDay in sleepTimeForDays) {
-        totalStartHour += sleepTimeForDay.first.hour
+        totalStartHour += if (sleepTimeForDay.first.hour >= 12) {
+            (24 - sleepTimeForDay.first.hour)
+        } else
+            sleepTimeForDay.first.hour
         totalEndHour += sleepTimeForDay.second.hour
     }
     val sizeT = sleepTimeForDays.size
-    val topHour = floor(totalStartHour.toFloat() / sizeT).toInt() + 1
-    val endHour = floor(totalEndHour.toFloat() / sizeT).toInt() + 1
+    val topHour = (totalStartHour.toFloat() / sizeT).toInt()
+    val endHour = (totalEndHour.toFloat() / sizeT).toInt()
     var selectedDay by remember { mutableStateOf(0) }
     val date = Util.getDate(selectedDay)
     Surface(
@@ -290,7 +292,7 @@ fun SleepTime.getUsedTime(): Long {
     time += if (sleep.day == wakeUp.day) {
         (wakeUp.hour - sleep.hour) * 3600000L
     } else {
-        (wakeUp.hour + 12 - sleep.hour) * 3600000L
+        (wakeUp.hour + 24 - sleep.hour) * 3600000L
     }
     if (wakeUp.minutes >= sleep.minutes) {
         time += (wakeUp.minutes - sleep.minutes) * 60000L
