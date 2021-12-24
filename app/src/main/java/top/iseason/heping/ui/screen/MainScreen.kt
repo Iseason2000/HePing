@@ -5,12 +5,17 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -26,6 +31,7 @@ import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.ui.screen.health.HealthAppDetail
 import top.iseason.heping.ui.screen.health.HealthScreen
+import top.iseason.heping.ui.screen.health.HealthSleep
 import top.iseason.heping.ui.screen.health.HealthTotalInfo
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -34,7 +40,7 @@ fun MainScreen(viewModel: AppViewModel) {
     val navController = rememberAnimatedNavController()
     ModelManager.setNavHostController(navController)
     ModelManager.setViewModel(viewModel)
-    AnimatedNavHost(navController = navController, startDestination = "main") {
+    AnimatedNavHost(navController = navController, startDestination = "healthSleep") {
         composable(route = "main", enterTransition = {
             EnterTransition.None
         }) {
@@ -58,6 +64,13 @@ fun MainScreen(viewModel: AppViewModel) {
                 return@composable
             }
             HealthAppDetail(packageName)
+        }
+        composable(route = "healthSleep", exitTransition = {
+            slideOutHorizontally(targetOffsetX = { -it })
+        }, enterTransition = {
+            slideInHorizontally(initialOffsetX = { -it })
+        }) {
+            HealthSleep()
         }
     }
 }
@@ -148,4 +161,45 @@ fun MyScaffold(viewModel: AppViewModel) {
 
         }
     }
+}
+
+@Composable
+fun NavBar(
+    title: String,
+    modifier: Modifier = Modifier,
+    content: @Composable (PaddingValues) -> Unit
+) {
+    Scaffold(
+        topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .background(MaterialTheme.colors.primaryVariant)
+                    .padding(start = 22.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        ModelManager
+                            .getNavController()
+                            .popBackStack()
+                    },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Filled.ArrowBackIos, null,
+                    tint = Color.White
+                )
+                Text(
+                    text = title,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = contentColorFor(MaterialTheme.colors.primaryVariant)
+                )
+            }
+        },
+        backgroundColor = Color(0xFFF3F6F5),
+        modifier = modifier, content = content
+    )
 }

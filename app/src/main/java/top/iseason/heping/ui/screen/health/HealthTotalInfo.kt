@@ -5,17 +5,15 @@ import androidx.compose.animation.core.FloatTweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIos
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,14 +21,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import top.iseason.heping.manager.AppInfo
 import top.iseason.heping.manager.ModelManager
+import top.iseason.heping.ui.screen.NavBar
 import top.iseason.heping.utils.Util
 
 @Composable
@@ -40,38 +42,7 @@ fun HealthTotalInfo() {
     LaunchedEffect(Unit) {
         viewModel.updateAppInfo()
     }
-    Scaffold(
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .background(MaterialTheme.colors.primaryVariant)
-                    .padding(start = 22.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {
-                        ModelManager
-                            .getNavController()
-                            .popBackStack()
-                    },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    Icons.Filled.ArrowBackIos, null,
-                    tint = Color.White
-                )
-                Text(
-                    text = "详细使用情况",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = contentColorFor(MaterialTheme.colors.primaryVariant)
-                )
-            }
-        },
-        backgroundColor = Color(0xFFF3F6F5)
-    ) {
+    NavBar("详细使用情况") {
         Column(
             modifier = Modifier
                 .padding(top = 16.dp, bottom = 0.dp, start = 16.dp, end = 16.dp)

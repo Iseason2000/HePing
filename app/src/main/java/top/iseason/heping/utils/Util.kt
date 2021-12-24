@@ -1,6 +1,7 @@
 package top.iseason.heping.utils
 
 import java.util.*
+import kotlin.math.abs
 
 object Util {
     @JvmStatic
@@ -27,4 +28,14 @@ object Util {
         set(Calendar.MILLISECOND, 0)
         add(Calendar.DATE, day)
     }
+
+    @JvmStatic
+    fun toHour(hour: Int): Int = if (hour > 23 || hour < 0) 24 - abs(hour) else hour
+
+    @JvmStatic
+    fun toMinute(minute: Int): Int = if (minute > 59 || minute < 0) 64 - abs(minute) else minute
+
+    fun formatTime2(num: Int): String = if (num in 0..9) "0$num" else num.toString()
+
+
 }

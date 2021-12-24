@@ -3,18 +3,16 @@ package top.iseason.heping.ui.screen.health
 import androidx.compose.animation.core.FloatTweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIos
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
@@ -29,71 +27,40 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import top.iseason.heping.manager.AppInfo
 import top.iseason.heping.manager.ModelManager
+import top.iseason.heping.ui.screen.NavBar
 import top.iseason.heping.ui.screen.controller.AppLimiter
 import top.iseason.heping.utils.Util
 import java.util.*
 
 @Composable
 fun HealthAppDetail(packageName: String) {
-    Box(modifier = Modifier.fillMaxSize())
     val appInfoForAllDays = ModelManager.getViewModel().getAppInfoForAllDays(packageName)
     val appName = appInfoForAllDays[0].appName
     val focusManager = LocalFocusManager.current
-    Scaffold(
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .background(MaterialTheme.colors.primaryVariant)
-                    .padding(start = 22.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {
-                        ModelManager
-                            .getNavController()
-                            .popBackStack()
-                    },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    Icons.Filled.ArrowBackIos, null,
-                    tint = Color.White
-                )
-                Text(
-                    text = appName,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = contentColorFor(MaterialTheme.colors.primaryVariant)
-                )
-            }
-        },
-        backgroundColor = Color(0xFFF3F6F5),
-        modifier = Modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) { focusManager.clearFocus() }
+    NavBar(appName, modifier = Modifier.clickable(
+        interactionSource = remember { MutableInteractionSource() },
+        indication = null
     ) {
+        focusManager.clearFocus()
+    }) {
         LazyColumn(
             modifier = Modifier
                 .padding(top = 16.dp, bottom = 0.dp, start = 16.dp, end = 16.dp)
         ) {
-            run {
-                item { TotalDays(appInfoForAllDays) }
-                item { Spacer(modifier = Modifier.height(16.dp)) }
-                item {
-                    AppLimiter(
-                        key = "TimeLimit-$packageName",
-                        mainTitle = "应用限额设置",
-                        subTitle = "单日使用此应用达到指定时长（分钟）时将提醒您",
-                        value1 = 30,
-                        value2 = 60,
-                        value3 = 90
-                    )
-                }
-                item { Spacer(modifier = Modifier.height(16.dp)) }
+            item { TotalDays(appInfoForAllDays) }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+            item {
+                AppLimiter(
+                    key = "TimeLimit-$packageName",
+                    mainTitle = "应用限额设置",
+                    subTitle = "单日使用此应用达到指定时长（分钟）时将提醒您",
+                    value1 = 30,
+                    value2 = 60,
+                    value3 = 90
+                )
             }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+
         }
     }
 }

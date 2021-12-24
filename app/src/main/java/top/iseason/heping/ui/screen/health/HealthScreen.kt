@@ -69,8 +69,7 @@ fun HealthScreen(viewModel: AppViewModel) {
                     modifier = Modifier
                         .padding(top = 15.dp, end = 23.dp)
                 ) {
-                    Toast.makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT)
-                        .show()
+                    ModelManager.getNavController().navigate("HealthSleep")
                 }
             }
             item {
