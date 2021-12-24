@@ -1,13 +1,11 @@
 package top.iseason.heping.ui.screen.controller
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -19,8 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
@@ -28,16 +30,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import top.iseason.heping.manager.ConfigManager
 import top.iseason.heping.utils.Util
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 
@@ -245,6 +245,12 @@ fun TimePicker() {
             .clip(RoundedCornerShape(8.dp))
     ) {
         var isOpen by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            isOpen = ConfigManager.getBoolean("Setting-SleepPlain")
+        }
+        DisposableEffect(Unit) {
+            onDispose { ConfigManager.setBoolean("Setting-SleepPlain", isOpen) }
+        }
         Column(modifier = Modifier.padding(all = 16.dp)) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -290,8 +296,26 @@ fun TimePicker() {
                 ) {
                     var fistHour by remember { mutableStateOf(0) }
                     var fistMinute by remember { mutableStateOf(0) }
-                    var lastHour by remember { mutableStateOf(13) }
+                    var lastHour by remember { mutableStateOf(7) }
                     var lastMinute by remember { mutableStateOf(0) }
+                    var isInit by remember { mutableStateOf(false) }
+                    val timeSet = ConfigManager.getString("Setting-SleepPlain-TimeSet")
+                    if (!isInit && timeSet != null) {
+                        val split = timeSet.split(',')
+                        fistHour = split[0].toInt()
+                        fistMinute = split[1].toInt()
+                        lastHour = split[2].toInt()
+                        lastMinute = split[3].toInt()
+                        isInit = true
+                    }
+                    DisposableEffect(Unit) {
+                        onDispose {
+                            ConfigManager.setString(
+                                "Setting-SleepPlain-TimeSet",
+                                "$fistHour,$fistMinute,$lastHour,$lastMinute"
+                            )
+                        }
+                    }
                     TimeScrollerPart(
                         defaultValue = fistHour,
                         maxValue = 24,
@@ -365,20 +389,13 @@ fun TimeScrollerPart(
     val coroutineScope = rememberCoroutineScope()
     var target by remember { mutableStateOf(defaultValue) }
     onValueChange(target)
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = maxValue - 1)
-    var isDragging = false
-    LaunchedEffect(isOpen) {
-        val offset: Int = if (target > maxValue / 2) {
-            target - 1
-        } else {
-            maxValue - 1 + target
-        }
-        listState.animateScrollToItem(abs(offset), 0)
-        //todo:禁止滚动
-        if (!isOpen) {
-            listState.disableScrolling(coroutineScope)
-        }
+    val offset: Int = if (target > maxValue / 2) {
+        target - 1
+    } else {
+        maxValue - 1 + target
     }
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = offset)
+    var isDragging = false
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemScrollOffset }
             .collect {
@@ -405,6 +422,7 @@ fun TimeScrollerPart(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .size(24.dp, 81.dp)
+            .disabledVerticalPointerInputScroll(!isOpen)
     ) {
         item { TimeTextScroller(0, target, isOpen, timeFormatter) }
         items(maxValue * 2 - 1) { index ->
@@ -412,14 +430,6 @@ fun TimeScrollerPart(
             TimeTextScroller(if (i > 0) maxValue - i else -i, target, isOpen, timeFormatter)
         }
         item { TimeTextScroller(0, target, isOpen, timeFormatter) }
-    }
-}
-
-fun LazyListState.disableScrolling(scope: CoroutineScope) {
-    scope.launch {
-        scroll(scrollPriority = MutatePriority.PreventUserInput) {
-            awaitCancellation()
-        }
     }
 }
 
@@ -460,3 +470,19 @@ fun TimeText(time: Int, isOn: Boolean, timeFormatter: (Int) -> Int) {
         color = if (isOn) MaterialTheme.colors.primary else Color(0XFFD9D9D9)
     )
 }
+
+private val VerticalScrollConsumer = object : NestedScrollConnection {
+    override fun onPreScroll(available: Offset, source: NestedScrollSource) = available.copy(x = 0f)
+    override suspend fun onPreFling(available: Velocity) = available.copy(x = 0f)
+}
+
+private val HorizontalScrollConsumer = object : NestedScrollConnection {
+    override fun onPreScroll(available: Offset, source: NestedScrollSource) = available.copy(y = 0f)
+    override suspend fun onPreFling(available: Velocity) = available.copy(y = 0f)
+}
+
+fun Modifier.disabledVerticalPointerInputScroll(disabled: Boolean = true) =
+    if (disabled) this.nestedScroll(VerticalScrollConsumer) else this
+
+fun Modifier.disabledHorizontalPointerInputScroll(disabled: Boolean = true) =
+    if (disabled) this.nestedScroll(HorizontalScrollConsumer) else this
