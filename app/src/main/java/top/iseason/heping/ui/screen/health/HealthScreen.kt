@@ -13,9 +13,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowForwardIos
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,8 +26,10 @@ import androidx.compose.ui.unit.sp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import top.iseason.heping.R
+import top.iseason.heping.manager.ConfigManager
 import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
+import top.iseason.heping.utils.Util
 
 @Composable
 fun HealthScreen(viewModel: AppViewModel) {
@@ -59,12 +59,32 @@ fun HealthScreen(viewModel: AppViewModel) {
                 MoreAppInfo(viewModel = viewModel)
             }
             item {
+                var isOpen by remember { mutableStateOf(false) }
+                isOpen = ConfigManager.getBoolean("Setting-SleepPlain")
+                val time = ConfigManager.getLong("Setting-SleepTime-Yesterday")
+                var text = "未设定睡眠计划"
+                val timeSet = ConfigManager.getString("Setting-SleepPlain-TimeSet")
+                if (timeSet != null) {
+                    val split = timeSet.split(',')
+                    val fistHour = split[0].toInt()
+                    val fistMinute = split[1].toInt()
+                    val lastHour = split[2].toInt()
+                    val lastMinute = split[3].toInt()
+                    text = "${
+                        Util.formatTime2(fistHour)
+                    }:${
+                        Util.formatTime2(fistMinute)
+                    }~${
+                        Util.formatTime2(lastHour)
+                    }:${Util.formatTime2(lastMinute)}"
+                }
+                text = if (isOpen) text else "未设定睡眠计划"
                 MessageCard(
                     viewModel = viewModel,
                     title = "睡眠",
                     subTitle = "昨晚睡眠",
-                    time = "7小时52分钟",
-                    message = "未设定睡眠计划",
+                    time = Util.longTimeFormat(time),
+                    message = text,
                     drawable = R.drawable.moon,
                     modifier = Modifier
                         .padding(top = 15.dp, end = 23.dp)

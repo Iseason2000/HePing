@@ -40,7 +40,7 @@ fun MainScreen(viewModel: AppViewModel) {
     val navController = rememberAnimatedNavController()
     ModelManager.setNavHostController(navController)
     ModelManager.setViewModel(viewModel)
-    AnimatedNavHost(navController = navController, startDestination = "healthSleep") {
+    AnimatedNavHost(navController = navController, startDestination = "main") {
         composable(route = "main", enterTransition = {
             EnterTransition.None
         }) {

@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -263,6 +264,7 @@ fun TimePicker() {
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "在计划的睡眠时段内使用屏幕将提醒您",
                         fontSize = 10.sp,
@@ -292,7 +294,20 @@ fun TimePicker() {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .drawBehind {
+                            drawLine(
+                                Color(0xFFF3F6F5),
+                                start = Offset(0F, size.height / 3),
+                                end = Offset(size.width, size.height / 3)
+                            )
+                            drawLine(
+                                Color(0xFFF3F6F5),
+                                start = Offset(0F, size.height / 4 * 3),
+                                end = Offset(size.width, size.height / 4 * 3)
+                            )
+                        }
                 ) {
                     var fistHour by remember { mutableStateOf(0) }
                     var fistMinute by remember { mutableStateOf(0) }
