@@ -27,6 +27,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import top.iseason.heping.R
 import top.iseason.heping.manager.ConfigManager
+import top.iseason.heping.manager.EventManager
 import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.utils.Util
@@ -97,7 +98,7 @@ fun HealthScreen(viewModel: AppViewModel) {
                     viewModel = viewModel,
                     title = "疲劳记录",
                     subTitle = "目前已连续使用屏幕",
-                    time = "7小时52分钟",
+                    time = Util.longTimeFormat(System.currentTimeMillis() - EventManager.tempUnix),
                     message = "未启用连续使用提醒",
                     drawable = R.drawable.eyes,
                     modifier = Modifier
