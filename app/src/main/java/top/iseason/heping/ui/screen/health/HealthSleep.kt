@@ -61,7 +61,7 @@ fun SleepTime() {
     val topHour = floor(totalStartHour.toFloat() / sizeT).toInt() + 1
     val endHour = floor(totalEndHour.toFloat() / sizeT).toInt() + 1
     var selectedDay by remember { mutableStateOf(0) }
-    val date = Util.getDate(selectedDay)
+    val date = Util.getDate(-selectedDay)
     Surface(
         modifier = Modifier
             .fillMaxWidth()
