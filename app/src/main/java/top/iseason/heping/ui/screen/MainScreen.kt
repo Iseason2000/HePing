@@ -1,6 +1,5 @@
 package top.iseason.heping.ui.screen
 
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -29,10 +28,7 @@ import com.google.accompanist.pager.rememberPagerState
 import top.iseason.heping.R
 import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
-import top.iseason.heping.ui.screen.health.HealthAppDetail
-import top.iseason.heping.ui.screen.health.HealthScreen
-import top.iseason.heping.ui.screen.health.HealthSleep
-import top.iseason.heping.ui.screen.health.HealthTotalInfo
+import top.iseason.heping.ui.screen.health.*
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -41,22 +37,26 @@ fun MainScreen(viewModel: AppViewModel) {
     ModelManager.setNavHostController(navController)
     ModelManager.setViewModel(viewModel)
     AnimatedNavHost(navController = navController, startDestination = "main") {
-        composable(route = "main", enterTransition = {
-            EnterTransition.None
+        composable(route = "main", exitTransition = {
+            slideOutHorizontally(targetOffsetX = { -it })
+        }, enterTransition = {
+            slideInHorizontally(initialOffsetX = { -it })
         }) {
             MyScaffold(viewModel)
         }
         composable(route = "healthTotal", exitTransition = {
-            slideOutHorizontally(targetOffsetX = { -it })
+            val offset = if (targetState.destination.route == "main") 1 else -1
+            slideOutHorizontally(targetOffsetX = { it * offset })
         }, enterTransition = {
-            slideInHorizontally(initialOffsetX = { -it })
+            val offset = if (initialState.destination.route == "main") 1 else -1
+            slideInHorizontally(initialOffsetX = { it * offset })
         }) {
             HealthTotalInfo()
         }
         composable(route = "healthAppDetail/{packageName}", exitTransition = {
-            slideOutHorizontally(targetOffsetX = { -it })
+            slideOutHorizontally(targetOffsetX = { it })
         }, enterTransition = {
-            slideInHorizontally(initialOffsetX = { -it })
+            slideInHorizontally(initialOffsetX = { it })
         }) {
             val packageName = it.arguments?.getString("packageName")
             if (packageName == null) {
@@ -66,11 +66,18 @@ fun MainScreen(viewModel: AppViewModel) {
             HealthAppDetail(packageName)
         }
         composable(route = "healthSleep", exitTransition = {
-            slideOutHorizontally(targetOffsetX = { -it })
+            slideOutHorizontally(targetOffsetX = { it })
         }, enterTransition = {
-            slideInHorizontally(initialOffsetX = { -it })
+            slideInHorizontally(initialOffsetX = { it })
         }) {
             HealthSleep()
+        }
+        composable(route = "healthTired", exitTransition = {
+            slideOutHorizontally(targetOffsetX = { it })
+        }, enterTransition = {
+            slideInHorizontally(initialOffsetX = { it })
+        }) {
+            HealthTiredRecord()
         }
     }
 }

@@ -1,11 +1,15 @@
 package top.iseason.heping.manager
 
 import android.annotation.SuppressLint
+import android.app.AppOpsManager
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
+import android.content.Context
 import android.content.Context.USAGE_STATS_SERVICE
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.os.PowerManager
+import android.os.Process
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
@@ -20,6 +24,7 @@ object ModelManager {
     private lateinit var usageStatsManager: UsageStatsManager
     private lateinit var activity: MainActivity
     private lateinit var packageManager: PackageManager
+    private var powerManager: PowerManager? = null
     private var viewModel = AppViewModel()
 
     @SuppressLint("StaticFieldLeak")
@@ -27,6 +32,7 @@ object ModelManager {
     fun setMainActivity(activity: MainActivity) {
         ModelManager.activity = activity
         usageStatsManager = activity.getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
+        powerManager = activity.getSystemService(Context.POWER_SERVICE) as PowerManager
         packageManager = activity.packageManager
     }
 
@@ -35,12 +41,18 @@ object ModelManager {
         viewModel = model
     }
 
+    fun getPowerManager() = powerManager
+
     fun setNavHostController(navController: NavHostController) {
         ModelManager.navController = navController
     }
 
     fun getMainActivity() = activity
     fun getNavController() = navController
+    fun isInteractive(): Boolean {
+        val powerManager1 = powerManager ?: return false
+        return powerManager1.isInteractive
+    }
 
     private fun getPackageManager() = packageManager
 
@@ -207,4 +219,14 @@ data class AppInfo(
         result = 31 * result + icon.hashCode()
         return result
     }
+}
+
+fun hasPermission(): Boolean {
+    val mode = (ModelManager.getMainActivity()
+        .getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager)
+        .checkOpNoThrow(
+            "android:get_usage_stats",
+            Process.myUid(), ModelManager.getMainActivity().packageName
+        )
+    return mode == AppOpsManager.MODE_ALLOWED
 }

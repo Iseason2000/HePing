@@ -67,7 +67,6 @@ fun AppLimiter(
         }
         DisposableEffect(Unit) {
             onDispose {
-                println(limitTime)
                 ConfigManager.setInt(key, limitTime)
             }
         }

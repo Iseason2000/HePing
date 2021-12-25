@@ -197,7 +197,7 @@ fun TotalDays(dayList: List<AppInfo>) {
                                 )
                             } else
                                 it.nativeCanvas.drawText(
-                                    "${date1.get(Calendar.MONTH)}.${date1.get(Calendar.DAY_OF_MONTH)}",
+                                    "${date1.get(Calendar.MONTH) + 1}.${date1.get(Calendar.DAY_OF_MONTH)}",
                                     actWidth - (actWidth / 6 * index),
                                     height + 15 * rate,
                                     textPaint

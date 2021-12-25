@@ -17,7 +17,9 @@ class AppViewModel : ViewModel() {
     val viewState = _viewState.asStateFlow()
     val isRefreshing = _isRefreshing.asStateFlow()
     private var isInit = false
-    private var pastUsageList: List<List<AppInfo>> = emptyList()
+    private var _pastUsageList: MutableStateFlow<List<List<AppInfo>>> =
+        MutableStateFlow(emptyList())
+    private val pastUsageList = _pastUsageList.asStateFlow()
     private fun emitState(viewState: AppViewState) {
         _viewState.value = viewState
     }
@@ -53,7 +55,7 @@ class AppViewModel : ViewModel() {
                             it.getTotalTime()
                         })
                     }
-                    pastUsageList = mutableListOf
+                    _pastUsageList.value = mutableListOf
                     isInit = true
                 }.start()
 
@@ -76,7 +78,7 @@ class AppViewModel : ViewModel() {
                 break
             }
         }
-        for (list in pastUsageList) {
+        for (list in _pastUsageList.value) {
             for (appInfo in list) {
                 if (appInfo.packageName == packageName) {
                     mutableListOf.add(appInfo)
