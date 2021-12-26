@@ -61,7 +61,9 @@ fun SleepTime() {
     val topHour = floor(totalStartHour.toFloat() / sizeT).toInt() + 1
     val endHour = floor(totalEndHour.toFloat() / sizeT).toInt() + 1
     var selectedDay by remember { mutableStateOf(0) }
-    val date = Util.getDate(-selectedDay)
+    var isWakeUp by remember { mutableStateOf(false) }
+    val ofDay = if (isWakeUp) 0 else -1
+    val date = Util.getDate(-selectedDay + ofDay)
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -78,8 +80,15 @@ fun SleepTime() {
         if (sleepTimeForDays.isNotEmpty())
             Column(modifier = Modifier.padding(all = 16.dp)) {
                 val selectedDays = sleepTimeForDays[selectedDay]
+
                 val title =
-                    "${date.get(Calendar.MONTH) + 1}.${date.get(Calendar.DAY_OF_MONTH)}睡眠 " +
+                    "${Util.formatTime2(date.get(Calendar.MONTH) + 1)}.${
+                        Util.formatTime2(
+                            date.get(
+                                Calendar.DAY_OF_MONTH
+                            )
+                        )
+                    }睡眠 " +
                             "${Util.formatTime2(selectedDays.first.hour)}:${
                                 Util.formatTime2(
                                     selectedDays.first.minutes
@@ -179,7 +188,7 @@ fun SleepTime() {
                             textPaint
                         )
                         for (index in 0 until 7) {
-                            val date1 = Util.getDate(-index)
+                            val date1 = Util.getDate(-index + ofDay)
                             if (index == 0) {
                                 it.nativeCanvas.drawText(
                                     "昨晚",
@@ -189,7 +198,11 @@ fun SleepTime() {
                                 )
                             } else
                                 it.nativeCanvas.drawText(
-                                    "${date1.get(Calendar.MONTH) + 1}.${date1.get(Calendar.DAY_OF_MONTH)}",
+                                    "${Util.formatTime2(date1.get(Calendar.MONTH) + 1)}.${
+                                        Util.formatTime2(
+                                            date1.get(Calendar.DAY_OF_MONTH)
+                                        )
+                                    }",
                                     actWidth - (actWidth / 6 * index),
                                     height + 40 * rate,
                                     textPaint
@@ -225,8 +238,7 @@ fun SleepTime() {
             ) {
                 LaunchedEffect(pastUsage) {
                     snapshotFlow { pastUsage.value }.collect {
-                        if (pastUsage.value.isEmpty()) return@collect
-                        val currentTimeMillis = System.currentTimeMillis()
+                        if (!ModelManager.getViewModel().isInit) return@collect
                         val now = Calendar.getInstance()
                         val sleepTime = arrayOf(0, 0, 7, 0) //睡觉小时,睡觉分钟,起床小时,起床分钟
                         val timeSet = ConfigManager.getString("Setting-SleepPlain-TimeSet")
@@ -235,7 +247,6 @@ fun SleepTime() {
                                 sleepTime[i] = s.toInt()
                             }
                         }
-                        var isWakeUp = false
                         if (now.get(Calendar.HOUR_OF_DAY) > sleepTime[2] && now.get(Calendar.MINUTE) > sleepTime[3]) {
                             isWakeUp = true
                         }
@@ -318,8 +329,6 @@ fun SleepTime() {
                             totalEndHour += sleepTime2.second.hour
                         }
                         sizeT = sleepTimeForDays.size
-                        println(System.currentTimeMillis() - currentTimeMillis)
-
                     }
                 }
                 Loading(Modifier.scale(0.5F), 3F)

@@ -74,7 +74,7 @@ fun TotalDays(dayList: List<AppInfo>) {
     }
     val totalMaxTime = maxTimeList.take(maxTimeList.size - 1).maxOf { it }
     val maxHour = (totalMaxTime / 3600000L).toInt() + 1
-    val date = Util.getDate(selectedDay)
+    val date = Util.getDate(-selectedDay)
     Column {
         Surface(
             modifier = Modifier
@@ -83,7 +83,11 @@ fun TotalDays(dayList: List<AppInfo>) {
         ) {
             Column(modifier = Modifier.padding(all = 16.dp)) {
                 Text(
-                    text = "${date.get(Calendar.MONTH)}.${date.get(Calendar.DAY_OF_MONTH)}使用了",
+                    text = "${Util.formatTime2(date.get(Calendar.MONTH) + 1)}.${
+                        Util.formatTime2(
+                            date.get(Calendar.DAY_OF_MONTH)
+                        )
+                    }使用了",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium
                 )
