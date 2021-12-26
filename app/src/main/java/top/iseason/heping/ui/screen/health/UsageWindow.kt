@@ -1,9 +1,7 @@
 package top.iseason.heping.ui.screen.health
 
 import android.app.AppOpsManager
-import android.content.Context
 import android.content.Intent
-import android.os.Process
 import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
@@ -32,6 +30,7 @@ import top.iseason.heping.R
 import top.iseason.heping.manager.AppInfo
 import top.iseason.heping.manager.ConfigManager
 import top.iseason.heping.manager.ModelManager
+import top.iseason.heping.manager.hasPermission
 import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.model.getTotalTime
 import top.iseason.heping.utils.Util
@@ -86,7 +85,7 @@ fun UsageWindow(viewModel: AppViewModel) {
                 Items(appInfo, maxUseTime, viewModel)
             }
         } else {
-            if (hasPermission()) {
+            if (hasPermission(AppOpsManager.OPSTR_GET_USAGE_STATS)) {
                 isOpenSetting = false
             }
             if (!isOpenSetting)
@@ -94,7 +93,7 @@ fun UsageWindow(viewModel: AppViewModel) {
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.padding(vertical = 80.dp)
                 ) {
-                    if (!hasPermission())
+                    if (!hasPermission(AppOpsManager.OPSTR_GET_USAGE_STATS))
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(text = "你还没有授予权限，将无法显示应用统计!")
                             Spacer(modifier = Modifier.height(20.dp))
@@ -278,12 +277,3 @@ fun Loading(modifier: Modifier, speed: Float = 1F) {
     )
 }
 
-fun hasPermission(): Boolean {
-    val mode = (ModelManager.getMainActivity()
-        .getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager)
-        .checkOpNoThrow(
-            "android:get_usage_stats",
-            Process.myUid(), ModelManager.getMainActivity().packageName
-        )
-    return mode == AppOpsManager.MODE_ALLOWED
-}

@@ -1,5 +1,6 @@
 package top.iseason.heping.ui.screen.health
 
+import android.app.AppOpsManager
 import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -29,6 +30,7 @@ import top.iseason.heping.R
 import top.iseason.heping.manager.ConfigManager
 import top.iseason.heping.manager.EventManager
 import top.iseason.heping.manager.ModelManager
+import top.iseason.heping.manager.hasPermission
 import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.utils.Util
 
@@ -57,7 +59,7 @@ fun HealthScreen(viewModel: AppViewModel) {
                 UsageWindow(viewModel = viewModel)
             }
             item {
-                MoreAppInfo(viewModel = viewModel)
+                MoreAppInfo()
             }
             item {
                 var isOpen by remember { mutableStateOf(false) }
@@ -81,7 +83,6 @@ fun HealthScreen(viewModel: AppViewModel) {
                 }
                 text = if (isOpen) text else "未设定睡眠计划"
                 MessageCard(
-                    viewModel = viewModel,
                     title = "睡眠",
                     subTitle = "昨晚睡眠",
                     time = Util.longTimeFormat(time),
@@ -95,7 +96,6 @@ fun HealthScreen(viewModel: AppViewModel) {
             }
             item {
                 MessageCard(
-                    viewModel = viewModel,
                     title = "疲劳记录",
                     subTitle = "目前已连续使用屏幕",
                     time = Util.longTimeFormat(System.currentTimeMillis() - EventManager.tempUnix),
@@ -110,7 +110,6 @@ fun HealthScreen(viewModel: AppViewModel) {
             }
             item {
                 MessageCard(
-                    viewModel = viewModel,
                     title = "久坐检测",
                     subTitle = "今天检测到久坐",
                     time = "3次",
@@ -129,7 +128,7 @@ fun HealthScreen(viewModel: AppViewModel) {
 }
 
 @Composable
-fun MoreAppInfo(viewModel: AppViewModel) {
+fun MoreAppInfo() {
     Surface(
         modifier = Modifier
             .padding(top = 16.dp)
@@ -137,7 +136,7 @@ fun MoreAppInfo(viewModel: AppViewModel) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .clickable {
-                if (hasPermission())
+                if (hasPermission(AppOpsManager.OPSTR_GET_USAGE_STATS))
                     ModelManager
                         .getNavController()
                         .navigate("healthTotal") else
@@ -163,7 +162,6 @@ fun MoreAppInfo(viewModel: AppViewModel) {
 
 @Composable
 fun MessageCard(
-    viewModel: AppViewModel,
     title: String,
     subTitle: String,
     time: String,

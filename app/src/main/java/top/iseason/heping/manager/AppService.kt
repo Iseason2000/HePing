@@ -10,14 +10,22 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import top.iseason.heping.MainActivity
 import top.iseason.heping.R
+import top.iseason.heping.manager.ModelManager.queryAppUseTime
+import top.iseason.heping.utils.Util
+import java.util.*
 
 
 class AppService : Service() {
     private var isRunning: Boolean = false
     private var isOpening: Boolean = true
     private var lastOpenTime: Long = System.currentTimeMillis()
+    private var windowManager = FloatWindowManager()
+    private var isAppLimit = false
+    private var isTiredLimit = false
+    private var isNightLimit = false
     private val screenChecker = Thread {
         while (true) {
+//            println("${EventManager.currentEvent.packageName} ${EventManager.currentEvent.timeStamp}")
             val interactive = ModelManager.isInteractive()
             if (interactive != isOpening) {
                 val time = System.currentTimeMillis()
@@ -30,6 +38,120 @@ class AppService : Service() {
             }
             isOpening = interactive
             Thread.sleep(1000)
+        }
+    }
+
+    private val timeLimiter = Thread {
+        while (true) {
+            Thread.sleep(1000)
+            if (isNightLimit || isTiredLimit) {
+                isAppLimit = false
+                continue
+            }
+            val packageName = EventManager.currentEvent.packageName
+            val int = ConfigManager.getInt("TimeLimit-$packageName")
+            if (int != 0) {
+                val queryAppUseTime = queryAppUseTime(packageName)
+                if (queryAppUseTime.second > int * 60000L) {
+                    windowManager.setText(
+                        "${queryAppUseTime.first} 今日已使用",
+                        Util.longTimeFormatDetail2(queryAppUseTime.second), "达到使用限额"
+                    )
+                    isAppLimit = true
+                    windowManager.showWindow()
+                } else {
+                    isAppLimit = false
+                    if (!(isTiredLimit || isNightLimit))
+                        windowManager.hideWindow()
+                }
+            } else {
+                isAppLimit = false
+                if (!(isTiredLimit || isNightLimit))
+                    windowManager.hideWindow()
+            }
+        }
+    }
+    private val tiredLimiter = Thread {
+        while (true) {
+            Thread.sleep(1000)
+            if (isNightLimit) {
+                isTiredLimit = false
+                continue
+            }
+            val int = ConfigManager.getInt("Health-TiredRecord-Tip")
+            if (int != 0) {
+                val useTime = System.currentTimeMillis() - EventManager.tempUnix
+                isTiredLimit = if (useTime > int * 60000L) {
+                    windowManager.setText(
+                        "已经连续使用",
+                        Util.longTimeFormatDetail2(useTime), "放下手机休息一会儿吧~"
+                    )
+                    windowManager.showWindow()
+                    true
+                } else {
+                    if (!(isAppLimit || isNightLimit))
+                        windowManager.hideWindow()
+                    false
+                }
+            } else {
+                isTiredLimit = false
+                if (!(isAppLimit || isNightLimit))
+                    windowManager.hideWindow()
+            }
+        }
+    }
+    private val nightLimiter = Thread {
+        while (true) {
+            Thread.sleep(1000)
+            val isOpen = ConfigManager.getBoolean("Setting-SleepPlain")
+            if (!isOpen) {
+                isNightLimit = false
+                if (!(isAppLimit || isTiredLimit))
+                    windowManager.hideWindow()
+                continue
+            }
+            val timeSet = ConfigManager.getString("Setting-SleepPlain-TimeSet")
+            if (timeSet == null) {
+                isNightLimit = false
+                if (!(isAppLimit || isTiredLimit))
+                    windowManager.hideWindow()
+                continue
+            }
+            val split = timeSet.split(',')
+            val fistHour = split[0].toInt()
+            val fistMinute = split[1].toInt()
+            val lastHour = split[2].toInt()
+            val lastMinute = split[3].toInt()
+
+            val sleepTimeStart = Calendar.getInstance().apply {
+                if (fistHour >= 12 && fistHour > lastHour) {
+                    set(Calendar.DATE, -1)
+                }
+                set(Calendar.HOUR_OF_DAY, fistHour)
+                set(Calendar.MINUTE, fistMinute)
+                set(Calendar.SECOND, 0)
+            }
+            val sleepTimeEnd = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, lastHour)
+                set(Calendar.MINUTE, lastMinute)
+                set(Calendar.SECOND, 0)
+            }
+            val current = Calendar.getInstance()
+
+            if (current.timeInMillis in sleepTimeStart.timeInMillis..sleepTimeEnd.timeInMillis) {
+                windowManager.setText(
+                    "已经深夜",
+                    Util.longTimeFormatDetail2(current.timeInMillis - Util.getDate(0).timeInMillis),
+                    "早点放下手机睡觉吧~"
+                )
+                isNightLimit = true
+                if (!(isAppLimit || isTiredLimit))
+                    windowManager.hideWindow()
+                continue
+            }
+            isNightLimit = false
+            if (!(isAppLimit || isTiredLimit))
+                windowManager.hideWindow()
         }
     }
 
@@ -48,6 +170,12 @@ class AppService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (isRunning) return super.onStartCommand(intent, flags, startId)
         screenChecker.start()
+        EventManager.isInit = true
+        EventManager.eventGetter.start()
+        windowManager.init()
+        nightLimiter.start()
+        tiredLimiter.start()
+        timeLimiter.start()
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
             startForeground(NOTIFICATION_ID, createForegroundNotification())
         }
@@ -103,5 +231,10 @@ class AppService : Service() {
     companion object {
         private const val NOTIFICATION_ID = 2233
     }
+
+//    fun getUsedTIme(packageName: String): String? {
+//
+//    }
+
 
 }

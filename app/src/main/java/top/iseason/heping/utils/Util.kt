@@ -12,12 +12,22 @@ object Util {
         return "${hours}小时${minutes}分钟"
     }
 
+
     @JvmStatic
     fun longTimeFormatDetail(time: Long): String {
         val hours = (time / 3600000).toInt()
         val minutes = (time - hours * 3600000) / 60000
         val second = (time - hours * 3600000 - minutes * 60000) / 1000
         return "${hours}时${minutes}分${second}秒"
+    }
+
+    @JvmStatic
+    fun longTimeFormatDetail2(time: Long): String {
+        val hours = (time / 3600000).toInt()
+        val minutes = ((time - hours * 3600000) / 60000).toInt()
+        val second = ((time - hours * 3600000 - minutes * 60000) / 1000).toInt()
+        if (hours == 0) return "${formatTime2(minutes)}:${formatTime2(second)}"
+        return "${formatTime2(hours)}:${formatTime2(minutes)}:${formatTime2(second)}"
     }
 
     @JvmStatic

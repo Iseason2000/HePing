@@ -1,5 +1,6 @@
 package top.iseason.heping.model
 
+import android.app.AppOpsManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -8,7 +9,7 @@ import kotlinx.coroutines.launch
 import top.iseason.heping.manager.AppInfo
 import top.iseason.heping.manager.ConfigManager
 import top.iseason.heping.manager.ModelManager.queryUsageStatsForDays
-import top.iseason.heping.ui.screen.health.hasPermission
+import top.iseason.heping.manager.hasPermission
 import top.iseason.heping.utils.Util
 
 class AppViewModel : ViewModel() {
@@ -46,7 +47,7 @@ class AppViewModel : ViewModel() {
 
     fun loadPastUsage() {
         if (isInit) return
-        if (hasPermission())
+        if (hasPermission(AppOpsManager.OPSTR_GET_USAGE_STATS))
             viewModelScope.launch {
                 Thread {
                     val mutableListOf = mutableListOf<List<AppInfo>>()
@@ -58,7 +59,6 @@ class AppViewModel : ViewModel() {
                     _pastUsageList.value = mutableListOf
                     isInit = true
                 }.start()
-
             }
     }
 

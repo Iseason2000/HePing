@@ -18,6 +18,7 @@ import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.ui.screen.MainScreen
 import top.iseason.heping.ui.theme.HePingTheme
 
+
 class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalAnimationApi::class)
@@ -30,7 +31,6 @@ class MainActivity : ComponentActivity() {
         } else {
             startService(Intent(this, AppService::class.java))
         }
-
         setContent {
             val viewModel = AppViewModel()
             HePingTheme {

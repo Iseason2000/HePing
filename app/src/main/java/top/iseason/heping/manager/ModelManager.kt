@@ -6,10 +6,16 @@ import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Context.USAGE_STATS_SERVICE
+import android.content.Context.WINDOW_SERVICE
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.PowerManager
 import android.os.Process
+import android.provider.Settings
+import android.view.LayoutInflater
+import android.view.WindowManager
+import android.widget.Toast
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
@@ -20,10 +26,13 @@ import top.iseason.heping.utils.Util
 import java.util.*
 
 
+@SuppressLint("StaticFieldLeak")
 object ModelManager {
     private lateinit var usageStatsManager: UsageStatsManager
     private lateinit var activity: MainActivity
     private lateinit var packageManager: PackageManager
+    private lateinit var windowManager: WindowManager
+    private var layoutInflater: LayoutInflater? = null
     private var powerManager: PowerManager? = null
     private var viewModel = AppViewModel()
 
@@ -32,8 +41,13 @@ object ModelManager {
     fun setMainActivity(activity: MainActivity) {
         ModelManager.activity = activity
         usageStatsManager = activity.getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
+        EventManager.usageStatsManager = usageStatsManager
         powerManager = activity.getSystemService(Context.POWER_SERVICE) as PowerManager
+        windowManager = ModelManager.activity.getSystemService(WINDOW_SERVICE) as WindowManager
+        layoutInflater =
+            activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         packageManager = activity.packageManager
+        openSuspendedWindowPermission()
     }
 
     fun getViewModel() = viewModel
@@ -41,8 +55,10 @@ object ModelManager {
         viewModel = model
     }
 
+    fun getLayoutInflater() = layoutInflater
+    fun getWindowManager() = windowManager
     fun getPowerManager() = powerManager
-
+    fun getUsageStatsManager() = usageStatsManager
     fun setNavHostController(navController: NavHostController) {
         ModelManager.navController = navController
     }
@@ -62,7 +78,6 @@ object ModelManager {
      *
      */
     fun queryUsageStatsForDays(day: Int): List<AppInfo> {
-        //时间范围 1天
         val calendar = Util.getDate(-day)
         val startTime = calendar.timeInMillis
         calendar.add(Calendar.DATE, 1)
@@ -181,6 +196,61 @@ object ModelManager {
         return infoList
     }
 
+    fun queryAppUseTime(packageName: String): Pair<String, Long> {
+        val calendar = Util.getDate(0)
+        val startTime = calendar.timeInMillis
+        calendar.add(Calendar.DATE, 1)
+        val endTime = calendar.timeInMillis
+        val eventList = mutableListOf<UsageEvents.Event>()
+        var currentEvent: UsageEvents.Event
+        val usageEvents = usageStatsManager.queryEvents(startTime, endTime)
+        while (usageEvents.hasNextEvent()) {
+            currentEvent = UsageEvents.Event()
+            usageEvents.getNextEvent(currentEvent)
+            val eventType = currentEvent.eventType
+            if (!(eventType == UsageEvents.Event.ACTIVITY_RESUMED || eventType == UsageEvents.Event.ACTIVITY_PAUSED || eventType == UsageEvents.Event.ACTIVITY_STOPPED))
+                continue
+            if (packageName != currentEvent.packageName) continue
+            eventList.add(currentEvent)
+        }
+        var total = 0L
+        if (eventList.isEmpty()) return Pair(packageName, 0L)
+        val fistEvent = eventList[0]
+        if (fistEvent.eventType == UsageEvents.Event.ACTIVITY_PAUSED || fistEvent.eventType == UsageEvents.Event.ACTIVITY_STOPPED) {
+            total += (fistEvent.timeStamp - startTime)
+        }
+        for (index in 0 until eventList.size - 1) {
+            val event1 = eventList[index]
+            val event2 = eventList[index + 1]
+            if (event1.eventType == UsageEvents.Event.ACTIVITY_PAUSED) continue
+            if (!(event2.eventType == UsageEvents.Event.ACTIVITY_STOPPED || event2.eventType == UsageEvents.Event.ACTIVITY_PAUSED)) continue
+            total += (event2.timeStamp - event1.timeStamp)
+        }
+        val lastEvent = eventList[eventList.size - 1]
+        if (lastEvent.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+            total += (System.currentTimeMillis() - lastEvent.timeStamp)
+        }
+        val applicationInfo: ApplicationInfo
+        try {
+            applicationInfo = packageManager.getApplicationInfo(
+                packageName,
+                PackageManager.GET_META_DATA
+            )
+        } catch (e: Exception) {
+            return Pair(packageName, total)
+        }
+        val appName = packageManager.getApplicationLabel(applicationInfo).toString()
+        return Pair(appName, total)
+    }
+
+    private fun openSuspendedWindowPermission() {
+        if (!hasPermission(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW)) {
+            Toast.makeText(activity, "请开启悬浮窗权限", Toast.LENGTH_SHORT).show()
+            getMainActivity().startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+        }
+    }
+
+
 }
 
 data class AppInfo(
@@ -221,11 +291,11 @@ data class AppInfo(
     }
 }
 
-fun hasPermission(): Boolean {
+fun hasPermission(permission: String): Boolean {
     val mode = (ModelManager.getMainActivity()
         .getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager)
         .checkOpNoThrow(
-            "android:get_usage_stats",
+            permission,
             Process.myUid(), ModelManager.getMainActivity().packageName
         )
     return mode == AppOpsManager.MODE_ALLOWED
