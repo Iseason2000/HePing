@@ -312,15 +312,13 @@ fun TimePicker() {
                     var fistMinute by remember { mutableStateOf(0) }
                     var lastHour by remember { mutableStateOf(7) }
                     var lastMinute by remember { mutableStateOf(0) }
-                    var isInit by remember { mutableStateOf(false) }
                     val timeSet = ConfigManager.getString("Setting-SleepPlain-TimeSet")
-                    if (!isInit && timeSet != null) {
+                    if (timeSet != null) {
                         val split = timeSet.split(',')
                         fistHour = split[0].toInt()
                         fistMinute = split[1].toInt()
                         lastHour = split[2].toInt()
                         lastMinute = split[3].toInt()
-                        isInit = true
                     }
                     DisposableEffect(Unit) {
                         onDispose {
