@@ -13,16 +13,17 @@ import top.iseason.heping.manager.hasPermission
 import top.iseason.heping.utils.Util
 
 class AppViewModel : ViewModel() {
-    private val _viewState: MutableStateFlow<AppViewState> = MutableStateFlow(AppViewState())
+    private val _healthViewState: MutableStateFlow<HealthViewState> =
+        MutableStateFlow(HealthViewState())
     private val _isRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val viewState = _viewState.asStateFlow()
+    val healthViewState = _healthViewState.asStateFlow()
     val isRefreshing = _isRefreshing.asStateFlow()
     var isInit = false
     private var _pastUsageList: MutableStateFlow<List<List<AppInfo>>> =
         MutableStateFlow(emptyList())
     private val pastUsageList = _pastUsageList.asStateFlow()
-    private fun emitState(viewState: AppViewState) {
-        _viewState.value = viewState
+    private fun emitState(viewState: HealthViewState) {
+        _healthViewState.value = viewState
     }
 
     fun refresh() {
@@ -40,7 +41,7 @@ class AppViewModel : ViewModel() {
                 ConfigManager.setLong("Yesterday", yesterday.timeInMillis)
             }
             emitState(
-                viewState.value.copy(appInfo = queryUsageStatsForDays(0).sortedByDescending { it.getTotalTime() })
+                healthViewState.value.copy(appInfo = queryUsageStatsForDays(0).sortedByDescending { it.getTotalTime() })
             )
         }.start()
     }
@@ -66,13 +67,13 @@ class AppViewModel : ViewModel() {
 
     fun setSelectedApp(index: Int) {
         viewModelScope.launch {
-            emitState(viewState.value.copy(selectApp = index))
+            emitState(healthViewState.value.copy(selectApp = index))
         }
     }
 
     fun getAppInfoForAllDays(packageName: String): List<AppInfo> {
         val mutableListOf = mutableListOf<AppInfo>()
-        for (appInfo in viewState.value.appInfo) {
+        for (appInfo in healthViewState.value.appInfo) {
             if (appInfo.packageName == packageName) {
                 mutableListOf.add(appInfo)
                 break
@@ -90,7 +91,7 @@ class AppViewModel : ViewModel() {
     }
 }
 
-data class AppViewState(
+data class HealthViewState(
     val appInfo: List<AppInfo> = emptyList(),
     val selectApp: Int = -1
 )

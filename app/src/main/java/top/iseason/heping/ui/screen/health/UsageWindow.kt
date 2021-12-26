@@ -39,12 +39,12 @@ import top.iseason.heping.utils.Util
 @Composable
 fun UsageWindow(viewModel: AppViewModel) {
 
-    val viewState by viewModel.viewState.collectAsState()
+    val viewState by viewModel.healthViewState.collectAsState()
     var isOpenSetting by remember { mutableStateOf(false) }
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(MaterialTheme.shapes.large)
             .animateContentSize()
     ) {
         val appInfo = viewState.appInfo

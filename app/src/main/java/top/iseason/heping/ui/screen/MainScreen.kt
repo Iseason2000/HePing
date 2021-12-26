@@ -28,6 +28,7 @@ import com.google.accompanist.pager.rememberPagerState
 import top.iseason.heping.R
 import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
+import top.iseason.heping.ui.screen.focus.FocusScreen
 import top.iseason.heping.ui.screen.health.*
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -159,7 +160,7 @@ fun MyScaffold(viewModel: AppViewModel) {
                     HealthScreen(viewModel)
                 }
                 1 -> {
-
+                    FocusScreen(viewModel)
                 }
                 2 -> {
 

@@ -11,7 +11,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -61,7 +60,7 @@ fun AppLimiter(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(MaterialTheme.shapes.large)
     ) {
         var limitTime by remember { mutableStateOf(0) }
         var offsetX by remember { mutableStateOf(0F) }
@@ -121,7 +120,7 @@ fun AppLimiter(
                         Box(
                             modifier = Modifier
                                 .size(220.dp, 48.dp)
-                                .clip(RoundedCornerShape(8.dp))
+                                .clip(MaterialTheme.shapes.large)
                                 .background(MaterialTheme.colors.secondaryVariant)
                                 .pointerInput(Unit) {
                                     detectTapGestures(
@@ -157,7 +156,7 @@ fun AppLimiter(
                         }
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
+                                .clip(MaterialTheme.shapes.large)
                                 .background(MaterialTheme.colors.primary)
                                 .animateContentSize()
                         ) {
@@ -207,7 +206,7 @@ fun AppLimiter(
                         },
                         modifier = Modifier
                             .size(68.dp, 48.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(MaterialTheme.shapes.large)
                             .background(MaterialTheme.colors.onSecondary)
                             .onFocusChanged {
                                 if (it.isFocused) text = "" else
@@ -249,7 +248,7 @@ fun CountButton(
 ) {
     TextButton(
         onClick = onClick,
-        shape = RoundedCornerShape(8.dp),
+        shape = MaterialTheme.shapes.large,
         colors = ButtonDefaults.textButtonColors(
             backgroundColor = if (limitTime == num) MaterialTheme.colors.primary
             else Color(0xFFF3F6F5)
@@ -271,7 +270,7 @@ fun TimePicker() {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(MaterialTheme.shapes.large)
     ) {
         var isOpen by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {

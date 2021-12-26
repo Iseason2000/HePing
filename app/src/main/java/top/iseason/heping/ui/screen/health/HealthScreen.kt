@@ -136,7 +136,7 @@ fun MoreAppInfo() {
             .padding(top = 16.dp)
             .height(height = 48.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(MaterialTheme.shapes.large)
             .clickable {
                 if (hasPermission(AppOpsManager.OPSTR_GET_USAGE_STATS))
                     ModelManager
@@ -177,7 +177,7 @@ fun MessageCard(
             .padding(top = 16.dp)
             .defaultMinSize(minHeight = 156.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(MaterialTheme.shapes.large)
             .clickable(onClick = onClick)
     ) {
         Row(

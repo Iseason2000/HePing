@@ -10,7 +10,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -38,7 +37,7 @@ import top.iseason.heping.utils.Util
 @Composable
 fun HealthTotalInfo() {
     val viewModel = ModelManager.getViewModel()
-    val viewState by viewModel.viewState.collectAsState()
+    val viewState by viewModel.healthViewState.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.updateAppInfo()
     }
@@ -75,7 +74,7 @@ fun TotalBar(data: Array<Long> = Array(24) { 0L }) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(MaterialTheme.shapes.large)
     ) {
         Column(modifier = Modifier.padding(all = 16.dp)) {
             Text(text = "使用时段", fontSize = 20.sp, fontWeight = FontWeight.Medium)
@@ -204,7 +203,7 @@ fun TotalInfo(appInfo: List<AppInfo>) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 16.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .clip(MaterialTheme.shapes.large)
 
     ) {
         Column {

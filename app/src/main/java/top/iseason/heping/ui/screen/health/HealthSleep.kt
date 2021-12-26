@@ -7,7 +7,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -67,7 +66,7 @@ fun SleepTime() {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(MaterialTheme.shapes.large)
     ) {
         DisposableEffect(Unit) {
             onDispose {
@@ -252,7 +251,7 @@ fun SleepTime() {
                         }
                         val pastUsage2 = pastUsage.value.toMutableList()
                         if (isWakeUp) {
-                            val appInfo = ModelManager.getViewModel().viewState.value.appInfo
+                            val appInfo = ModelManager.getViewModel().healthViewState.value.appInfo
                             pastUsage2.add(0, appInfo)
                         }
                         //多天内的使用时间分布情况
@@ -284,7 +283,7 @@ fun SleepTime() {
                                     SleepEvent(
                                         day,
                                         hour,
-                                        ((3600000 - time.toInt()) / 60000),
+                                        (time.toInt() / 60000),
                                         true
                                     )
                                 )
