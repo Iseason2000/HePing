@@ -47,7 +47,6 @@ object ModelManager {
         layoutInflater =
             activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         packageManager = activity.packageManager
-        openSuspendedWindowPermission()
     }
 
     fun getViewModel() = viewModel
@@ -245,7 +244,7 @@ object ModelManager {
 
     private fun openSuspendedWindowPermission() {
         if (!hasPermission(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW)) {
-            Toast.makeText(activity, "请开启悬浮窗权限", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, "请在设置里开启悬浮窗权限!", Toast.LENGTH_LONG).show()
             getMainActivity().startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
         }
     }

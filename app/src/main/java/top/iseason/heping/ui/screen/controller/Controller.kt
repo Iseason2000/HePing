@@ -1,5 +1,9 @@
 package top.iseason.heping.ui.screen.controller
 
+import android.app.AppOpsManager
+import android.content.Intent
+import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -38,6 +42,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import top.iseason.heping.manager.ConfigManager
+import top.iseason.heping.manager.ModelManager
+import top.iseason.heping.manager.hasPermission
 import top.iseason.heping.utils.Util
 import kotlin.math.roundToInt
 
@@ -70,142 +76,165 @@ fun AppLimiter(
                 ConfigManager.setInt(key, limitTime)
             }
         }
-        Column(modifier = Modifier.padding(all = 16.dp)) {
-            Text(
-                text = mainTitle,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = subTitle,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Normal,
-                color = MaterialTheme.colors.onError
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                limitTime = (offsetX / 220 * maxValue).toInt()
-                CountButton("关闭", limitTime, 0) {
-                    limitTime = 0
-                    offsetX = limitTime.toFloat() / maxValue * 220
+        if (hasPermission(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW))
+            Column(modifier = Modifier.padding(all = 16.dp)) {
+                Text(
+                    text = mainTitle,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = subTitle,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = MaterialTheme.colors.onError
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    limitTime = (offsetX / 220 * maxValue).toInt()
+                    CountButton("关闭", limitTime, 0) {
+                        limitTime = 0
+                        offsetX = limitTime.toFloat() / maxValue * 220
+                    }
+                    CountButton(value1.toString(), limitTime, value1) {
+                        limitTime = value1
+                        offsetX = limitTime.toFloat() / maxValue * 220
+                    }
+                    CountButton(value2.toString(), limitTime, value2) {
+                        limitTime = value2
+                        offsetX = limitTime.toFloat() / maxValue * 220
+                    }
+                    CountButton(value3.toString(), limitTime, value3) {
+                        limitTime = value3
+                        offsetX = limitTime.toFloat() / maxValue * 220
+                    }
                 }
-                CountButton(value1.toString(), limitTime, value1) {
-                    limitTime = value1
-                    offsetX = limitTime.toFloat() / maxValue * 220
-                }
-                CountButton(value2.toString(), limitTime, value2) {
-                    limitTime = value2
-                    offsetX = limitTime.toFloat() / maxValue * 220
-                }
-                CountButton(value3.toString(), limitTime, value3) {
-                    limitTime = value3
-                    offsetX = limitTime.toFloat() / maxValue * 220
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Box {
-                    Box(
-                        modifier = Modifier
-                            .size(220.dp, 48.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colors.secondaryVariant)
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onTap = { offset ->
-                                        val fl = (offset.x / size.width) * 220
-                                        offsetX = fl
-                                    }
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Box {
+                        Box(
+                            modifier = Modifier
+                                .size(220.dp, 48.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colors.secondaryVariant)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = { offset ->
+                                            val fl = (offset.x / size.width) * 220
+                                            offsetX = fl
+                                        }
+                                    )
+                                }
+                                .pointerInput(Unit) {
+                                    detectHorizontalDragGestures(
+                                        onDragStart = { offset ->
+                                            val fl = (offset.x / size.width) * 220
+                                            offsetX = fl
+                                        },
+                                        onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
+                                            val fl = (dragAmount / size.width) * 220
+                                            if (offsetX + fl < 0 || offsetX + fl > 220) return@detectHorizontalDragGestures
+                                            offsetX += fl
+                                        }
+                                    )
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (limitTime == 0) {
+                                Text(
+                                    text = "拖动以设置时长",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = MaterialTheme.colors.secondary
                                 )
                             }
-                            .pointerInput(Unit) {
-                                detectHorizontalDragGestures(
-                                    onDragStart = { offset ->
-                                        val fl = (offset.x / size.width) * 220
-                                        offsetX = fl
-                                    },
-                                    onHorizontalDrag = { _: PointerInputChange, dragAmount: Float ->
-                                        val fl = (dragAmount / size.width) * 220
-                                        if (offsetX + fl < 0 || offsetX + fl > 220) return@detectHorizontalDragGestures
-                                        offsetX += fl
-                                    }
-                                )
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (limitTime == 0) {
-                            Text(
-                                text = "拖动以设置时长",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = MaterialTheme.colors.secondary
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colors.primary)
+                                .animateContentSize()
+                        ) {
+                            Spacer(
+                                modifier = Modifier
+                                    .size(
+                                        if (offsetX > 220) 220.dp else offsetX.roundToInt().dp,
+                                        48.dp
+                                    )
                             )
                         }
                     }
-                    Box(
+                    var text by remember { mutableStateOf("") }
+                    var isEdit by remember { mutableStateOf(false) }
+                    val focusManager = LocalFocusManager.current
+                    if (!isEdit) {
+                        text = if (limitTime == 0) "∞" else limitTime.toString()
+                    }
+                    BasicTextField(
+                        value = text,
+                        onValueChange = {
+                            if (it.length > text.length) {
+                                val addedChar = it.replaceFirst(text, "").toIntOrNull()
+                                if (addedChar != null) text = it
+                            } else
+                                text = it
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardActions = KeyboardActions(onDone = {
+                            limitTime = text.toIntOrNull() ?: 0
+                            focusManager.clearFocus()
+                        }),
+                        cursorBrush = SolidColor(MaterialTheme.colors.primary),
+                        textStyle = TextStyle(
+                            color = MaterialTheme.colors.secondary,
+                            textAlign = TextAlign.Center,
+                            fontSize = 16.sp
+                        ),
+                        decorationBox = @Composable { innerTextField ->
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                innerTextField()
+                            }
+                        },
                         modifier = Modifier
+                            .size(68.dp, 48.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colors.primary)
-                            .animateContentSize()
-                    ) {
-                        Spacer(
-                            modifier = Modifier
-                                .size(if (offsetX > 220) 220.dp else offsetX.roundToInt().dp, 48.dp)
-                        )
+                            .background(MaterialTheme.colors.onSecondary)
+                            .onFocusChanged {
+                                if (it.isFocused) text = "" else
+                                    limitTime = text.toIntOrNull() ?: 0
+                                isEdit = it.isFocused
+                                offsetX = limitTime.toFloat() / maxValue * 220
+                            }
+                    )
+                }
+            }
+        else {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(30.dp)) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "你还没有授予悬浮窗权限，将无法启用限额功能!")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {
+                        Toast.makeText(
+                            ModelManager.getMainActivity(),
+                            "在设置里找到 和屏 然后开启权限!",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        ModelManager.getMainActivity()
+                            .startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+                    }) {
+                        Text(text = "去授予")
                     }
                 }
-                var text by remember { mutableStateOf("") }
-                var isEdit by remember { mutableStateOf(false) }
-                val focusManager = LocalFocusManager.current
-                if (!isEdit) {
-                    text = if (limitTime == 0) "∞" else limitTime.toString()
-                }
-                BasicTextField(
-                    value = text,
-                    onValueChange = {
-                        if (it.length > text.length) {
-                            val addedChar = it.replaceFirst(text, "").toIntOrNull()
-                            if (addedChar != null) text = it
-                        } else
-                            text = it
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    keyboardActions = KeyboardActions(onDone = {
-                        limitTime = text.toIntOrNull() ?: 0
-                        focusManager.clearFocus()
-                    }),
-                    cursorBrush = SolidColor(MaterialTheme.colors.primary),
-                    textStyle = TextStyle(
-                        color = MaterialTheme.colors.secondary,
-                        textAlign = TextAlign.Center,
-                        fontSize = 16.sp
-                    ),
-                    decorationBox = @Composable { innerTextField ->
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            innerTextField()
-                        }
-                    },
-                    modifier = Modifier
-                        .size(68.dp, 48.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colors.onSecondary)
-                        .onFocusChanged {
-                            if (it.isFocused) text = "" else
-                                limitTime = text.toIntOrNull() ?: 0
-                            isEdit = it.isFocused
-                            offsetX = limitTime.toFloat() / maxValue * 220
-                        }
-                )
             }
         }
     }
@@ -251,139 +280,161 @@ fun TimePicker() {
         DisposableEffect(Unit) {
             onDispose { ConfigManager.setBoolean("Setting-SleepPlain", isOpen) }
         }
-        Column(modifier = Modifier.padding(all = 16.dp)) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column {
-                    Text(
-                        text = "睡眠计划",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "在计划的睡眠时段内使用屏幕将提醒您",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = MaterialTheme.colors.onError
+        if (hasPermission(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW))
+            Column(modifier = Modifier.padding(all = 16.dp)) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column {
+                        Text(
+                            text = "睡眠计划",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "在计划的睡眠时段内使用屏幕将提醒您",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colors.onError
+                        )
+                    }
+                    Switch(
+                        checked = isOpen,
+                        onCheckedChange = {
+                            isOpen = it
+                        },
+                        modifier = Modifier.size(46.dp, 24.dp),
+                        enabled = true,
+                        colors = SwitchDefaults.colors(
+                            uncheckedThumbColor = MaterialTheme.colors.primary,
+                            uncheckedTrackColor = MaterialTheme.colors.secondaryVariant,
+                            checkedThumbColor = MaterialTheme.colors.secondaryVariant,
+                            checkedTrackColor = MaterialTheme.colors.primary,
+                            checkedTrackAlpha = 1F,
+                            uncheckedTrackAlpha = 1F
+                        )
                     )
                 }
-                Switch(
-                    checked = isOpen,
-                    onCheckedChange = {
-                        isOpen = it
-                    },
-                    modifier = Modifier.size(46.dp, 24.dp),
-                    enabled = true,
-                    colors = SwitchDefaults.colors(
-                        uncheckedThumbColor = MaterialTheme.colors.primary,
-                        uncheckedTrackColor = MaterialTheme.colors.secondaryVariant,
-                        checkedThumbColor = MaterialTheme.colors.secondaryVariant,
-                        checkedTrackColor = MaterialTheme.colors.primary,
-                        checkedTrackAlpha = 1F,
-                        uncheckedTrackAlpha = 1F
-                    )
-                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .drawBehind {
+                                drawLine(
+                                    Color(0xFFF3F6F5),
+                                    start = Offset(0F, size.height / 3),
+                                    end = Offset(size.width, size.height / 3)
+                                )
+                                drawLine(
+                                    Color(0xFFF3F6F5),
+                                    start = Offset(0F, size.height / 4 * 3),
+                                    end = Offset(size.width, size.height / 4 * 3)
+                                )
+                            }
+                    ) {
+                        var fistHour by remember { mutableStateOf(0) }
+                        var fistMinute by remember { mutableStateOf(0) }
+                        var lastHour by remember { mutableStateOf(7) }
+                        var lastMinute by remember { mutableStateOf(0) }
+                        var isInit by remember { mutableStateOf(false) }
+                        val timeSet = ConfigManager.getString("Setting-SleepPlain-TimeSet")
+                        if (!isInit && timeSet != null) {
+                            val split = timeSet.split(',')
+                            fistHour = split[0].toInt()
+                            fistMinute = split[1].toInt()
+                            lastHour = split[2].toInt()
+                            lastMinute = split[3].toInt()
+                            isInit = true
+                        }
+                        DisposableEffect(Unit) {
+                            onDispose {
+                                ConfigManager.setString(
+                                    "Setting-SleepPlain-TimeSet",
+                                    "$fistHour,$fistMinute,$lastHour,$lastMinute"
+                                )
+                            }
+                        }
+                        TimeScrollerPart(
+                            defaultValue = fistHour,
+                            maxValue = 24,
+                            isOpen = isOpen,
+                            onValueChange = { fistHour = it },
+                            timeFormatter = Util::toHour
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = ":",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isOpen) MaterialTheme.colors.primary else Color(0XFFD9D9D9),
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        TimeScrollerPart(
+                            defaultValue = fistMinute,
+                            maxValue = 60,
+                            isOpen = isOpen,
+                            onValueChange = { fistMinute = it },
+                            timeFormatter = Util::toMinute
+                        )
+                        Spacer(modifier = Modifier.width(30.dp))
+                        Text(
+                            text = "至",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isOpen) MaterialTheme.colors.primary else Color(0XFFD9D9D9),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.offset(y = 2.dp)
+                        )
+                        Spacer(modifier = Modifier.width(30.dp))
+                        TimeScrollerPart(
+                            defaultValue = lastHour,
+                            maxValue = 24,
+                            isOpen = isOpen,
+                            onValueChange = { lastHour = it },
+                            timeFormatter = Util::toHour
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = ":",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isOpen) MaterialTheme.colors.primary else Color(0XFFD9D9D9),
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        TimeScrollerPart(
+                            defaultValue = lastMinute,
+                            maxValue = 60,
+                            isOpen = isOpen,
+                            onValueChange = { lastMinute = it },
+                            timeFormatter = Util::toMinute
+                        )
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .drawBehind {
-                            drawLine(
-                                Color(0xFFF3F6F5),
-                                start = Offset(0F, size.height / 3),
-                                end = Offset(size.width, size.height / 3)
-                            )
-                            drawLine(
-                                Color(0xFFF3F6F5),
-                                start = Offset(0F, size.height / 4 * 3),
-                                end = Offset(size.width, size.height / 4 * 3)
-                            )
-                        }
-                ) {
-                    var fistHour by remember { mutableStateOf(0) }
-                    var fistMinute by remember { mutableStateOf(0) }
-                    var lastHour by remember { mutableStateOf(7) }
-                    var lastMinute by remember { mutableStateOf(0) }
-                    val timeSet = ConfigManager.getString("Setting-SleepPlain-TimeSet")
-                    if (timeSet != null) {
-                        val split = timeSet.split(',')
-                        fistHour = split[0].toInt()
-                        fistMinute = split[1].toInt()
-                        lastHour = split[2].toInt()
-                        lastMinute = split[3].toInt()
+        else {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(30.dp)) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "你还没有授予悬浮窗权限，将无法启用限额功能!")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {
+                        Toast.makeText(
+                            ModelManager.getMainActivity(),
+                            "在设置里找到 和屏 然后开启权限!",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        ModelManager.getMainActivity()
+                            .startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+                    }) {
+                        Text(text = "去授予")
                     }
-                    DisposableEffect(Unit) {
-                        onDispose {
-                            ConfigManager.setString(
-                                "Setting-SleepPlain-TimeSet",
-                                "$fistHour,$fistMinute,$lastHour,$lastMinute"
-                            )
-                        }
-                    }
-                    TimeScrollerPart(
-                        defaultValue = fistHour,
-                        maxValue = 24,
-                        isOpen = isOpen,
-                        onValueChange = { fistHour = it },
-                        timeFormatter = Util::toHour
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = ":",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isOpen) MaterialTheme.colors.primary else Color(0XFFD9D9D9),
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    TimeScrollerPart(
-                        defaultValue = fistMinute,
-                        maxValue = 60,
-                        isOpen = isOpen,
-                        onValueChange = { fistMinute = it },
-                        timeFormatter = Util::toMinute
-                    )
-                    Spacer(modifier = Modifier.width(30.dp))
-                    Text(
-                        text = "至",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isOpen) MaterialTheme.colors.primary else Color(0XFFD9D9D9),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.offset(y = 2.dp)
-                    )
-                    Spacer(modifier = Modifier.width(30.dp))
-                    TimeScrollerPart(
-                        defaultValue = lastHour,
-                        maxValue = 24,
-                        isOpen = isOpen,
-                        onValueChange = { lastHour = it },
-                        timeFormatter = Util::toHour
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = ":",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isOpen) MaterialTheme.colors.primary else Color(0XFFD9D9D9),
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    TimeScrollerPart(
-                        defaultValue = lastMinute,
-                        maxValue = 60,
-                        isOpen = isOpen,
-                        onValueChange = { lastMinute = it },
-                        timeFormatter = Util::toMinute
-                    )
                 }
             }
         }

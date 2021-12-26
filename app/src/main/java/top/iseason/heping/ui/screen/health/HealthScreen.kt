@@ -95,11 +95,13 @@ fun HealthScreen(viewModel: AppViewModel) {
                 }
             }
             item {
+                val int = ConfigManager.getInt("Health-TiredRecord-Tip")
+                val text = if (int == 0) "未启用连续使用提醒" else "${int}分钟提醒一次"
                 MessageCard(
                     title = "疲劳记录",
                     subTitle = "目前已连续使用屏幕",
                     time = Util.longTimeFormat(System.currentTimeMillis() - EventManager.tempUnix),
-                    message = "未启用连续使用提醒",
+                    message = text,
                     drawable = R.drawable.eyes,
                     modifier = Modifier
                         .padding(top = 7.dp, end = 6.dp)

@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.core.FloatTweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +27,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,7 +40,13 @@ import java.util.*
 
 @Composable
 fun HealthTiredRecord() {
-    NavBar("疲劳记录") {
+    val focusManager = LocalFocusManager.current
+    NavBar("疲劳记录", modifier = Modifier.clickable(
+        interactionSource = remember { MutableInteractionSource() },
+        indication = null
+    ) {
+        focusManager.clearFocus()
+    }) {
         LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
             item {
                 TiredRecord()

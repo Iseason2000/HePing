@@ -17,15 +17,15 @@ import java.util.*
 
 class AppService : Service() {
     private var isRunning: Boolean = false
-    private var isOpening: Boolean = true
+    private var isOpening: Boolean = false
     private var lastOpenTime: Long = System.currentTimeMillis()
     private var windowManager = FloatWindowManager()
     private var isAppLimit = false
     private var isTiredLimit = false
     private var isNightLimit = false
+
     private val screenChecker = Thread {
         while (true) {
-//            println("${EventManager.currentEvent.packageName} ${EventManager.currentEvent.timeStamp}")
             val interactive = ModelManager.isInteractive()
             if (interactive != isOpening) {
                 val time = System.currentTimeMillis()
