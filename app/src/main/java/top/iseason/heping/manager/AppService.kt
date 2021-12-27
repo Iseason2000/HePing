@@ -137,7 +137,6 @@ class AppService : Service() {
                 set(Calendar.SECOND, 0)
             }
             val current = Calendar.getInstance()
-
             if (current.timeInMillis in sleepTimeStart.timeInMillis..sleepTimeEnd.timeInMillis) {
                 windowManager.setText(
                     "已经深夜",
@@ -145,8 +144,7 @@ class AppService : Service() {
                     "早点放下手机睡觉吧~"
                 )
                 isNightLimit = true
-                if (!(isAppLimit || isTiredLimit))
-                    windowManager.hideWindow()
+                windowManager.showWindow()
                 continue
             }
             isNightLimit = false
