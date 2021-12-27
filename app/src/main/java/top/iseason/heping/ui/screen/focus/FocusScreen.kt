@@ -1,5 +1,6 @@
 package top.iseason.heping.ui.screen.focus
 
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -233,7 +234,21 @@ fun TomatoCard() {
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 TextButton(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        val tomatoCircle =
+                            ModelManager.getService()?.tomatoCircle ?: return@TextButton
+                        val int = ConfigManager.getInt("Focus-Setting-Tomato-FocusTime")
+                        if (int == 0) return@TextButton
+                        val int1 = ConfigManager.getInt("Focus-Setting-Tomato-ReleaseTime")
+                        if (int == 0) return@TextButton
+                        if (!tomatoCircle.start(count, int, int1)) {
+                            Toast.makeText(
+                                ModelManager.getMainActivity(),
+                                "当前有其他任务正在运行!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
                     modifier = Modifier
                         .width(40.dp)
                         .fillMaxHeight(),
@@ -339,12 +354,15 @@ fun EditButton(id: Int, defaultValue: Int = 0) {
         TextButton(
             onClick = {
                 if (!isEditing && minutes > 0) {
-                    ModelManager.getService()?.focusTime?.start(minutes * 60)
+                    if (ModelManager.getService()?.focusTime?.start(minutes * 60) == false) {
+                        Toast.makeText(
+                            ModelManager.getMainActivity(),
+                            "当前有其他任务正在运行!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@TextButton
+                    }
                     ModelManager.getNavController().navigate("focusing")
-                    if (ConfigManager.getBoolean("Focus-Setting-AutoLock"))
-                        ModelManager.lockScreen()
-                    if (ConfigManager.getBoolean("Focus-Setting-StartTip"))
-                        ModelManager.vibrator()
                 }
             },
             shape = MaterialTheme.shapes.medium,

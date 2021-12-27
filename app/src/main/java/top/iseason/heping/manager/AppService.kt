@@ -207,6 +207,7 @@ class AppService : Service() {
         tiredLimiter.start()
         timeLimiter.start()
         focusLimiter.start()
+        tomatoCircle.start(5, 5, 2)
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
             startForeground(NOTIFICATION_ID, createForegroundNotification())
         }
@@ -214,7 +215,9 @@ class AppService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    val tomatoCircle = TomatoCircleTimer()
     val focusTime = FocusTimer()
+    val relaxTime = RelaxTimer()
     override fun onDestroy() {
         super.onDestroy()
         stopForeground(true)
@@ -260,24 +263,27 @@ class AppService : Service() {
             .build()
     }
 
-    class FocusTimer(
+    inner class FocusTimer(
         var isFocusing: Boolean = false,
         var focusTime: Int = 600, //设定时间 单位秒
         var currentTime: Int = 0
     ) {
         var timer = Timer()
         fun start(minutes: Int): Boolean {
-            if (isFocusing) return false
+            if (isFocusing || relaxTime.isRelaxing) return false
             currentTime = 0
             focusTime = minutes
             isFocusing = true
             timer = Timer()
+            if (ConfigManager.getBoolean("Focus-Setting-StartTip"))
+                ModelManager.vibrator()
+            if (ConfigManager.getBoolean("Focus-Setting-AutoLock"))
+                ModelManager.lockScreen()
             timer.schedule(object : TimerTask() {
                 override fun run() {
                     currentTime++
                     if (currentTime > focusTime) {
-                        timer.cancel()
-                        isFocusing = false
+                        stop()
                     }
                 }
             }, 0L, 1000L)
@@ -287,6 +293,99 @@ class AppService : Service() {
         fun stop() {
             timer.cancel()
             isFocusing = false
+            if (ConfigManager.getBoolean("Focus-Setting-EndTip"))
+                ModelManager.vibrator()
+        }
+    }
+
+    inner class RelaxTimer(
+        var isRelaxing: Boolean = false,
+        var relaxTime: Int = 600, //设定时间 单位秒
+        var currentTime: Int = 0
+    ) {
+        var timer = Timer()
+        fun start(minutes: Int): Boolean {
+            if (isRelaxing) return false
+            currentTime = 0
+            relaxTime = minutes
+            isRelaxing = true
+            timer = Timer()
+            timer.schedule(object : TimerTask() {
+                override fun run() {
+                    currentTime++
+                    if (currentTime > relaxTime) {
+                        timer.cancel()
+                        isRelaxing = false
+                    }
+                }
+            }, 0L, 1000L)
+            return true
+        }
+
+        fun stop() {
+            timer.cancel()
+            isRelaxing = false
+        }
+    }
+
+    inner class TomatoCircleTimer(
+        var isCircle: Boolean = false,
+        var maxTimes: Int = 5,
+        var count: Int = 0
+    ) {
+        var isWorking: Boolean = false
+        var isRelaxing: Boolean = false
+        var timer = Timer()
+        fun start(times: Int, workTime: Int, relaxTime: Int): Boolean {
+            if (isCircle) return false
+            if (this@AppService.focusTime.isFocusing || this@AppService.relaxTime.isRelaxing) return false
+            maxTimes = times
+            count = 0
+            isCircle = true
+            timer = Timer()
+            timer.schedule(object : TimerTask() {
+                override fun run() {
+                    if (count >= maxTimes) {
+                        stop()
+//                        println("循环结束")
+                        return
+                    }
+                    if (!isWorking && !isRelaxing) {
+                        if (!this@AppService.focusTime.start(workTime)) {
+                            stop()
+                            return
+                        }
+//                        println("开始第${count}次工作")
+                        isWorking = true
+                        return
+                    }
+                    if (isWorking && !this@AppService.focusTime.isFocusing) {
+                        //工作状态但是工作计时结束了
+                        isWorking = false
+                        if (!this@AppService.relaxTime.start(relaxTime)) {
+                            stop()
+                            return
+                        }
+//                        println("开始第${count}次休息")
+                        isRelaxing = true
+                        return
+                    }
+                    if (isRelaxing && !this@AppService.relaxTime.isRelaxing) {
+                        //休息状态但是休息时间结束了
+                        count++
+                        isRelaxing = false
+                    }
+
+                }
+            }, 0L, 1000L)
+            return true
+        }
+
+        fun stop() {
+            focusTime.stop()
+            relaxTime.stop()
+            timer.cancel()
+            isCircle = false
         }
     }
 
