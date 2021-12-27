@@ -2,16 +2,19 @@ package top.iseason.heping.manager
 
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
+import android.app.admin.DevicePolicyManager
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
-import android.content.Context
-import android.content.Context.USAGE_STATS_SERVICE
-import android.content.Context.WINDOW_SERVICE
+import android.content.ComponentName
+import android.content.Context.*
 import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.os.IBinder
 import android.os.PowerManager
 import android.os.Process
+import android.os.Vibrator
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.WindowManager
@@ -32,9 +35,23 @@ object ModelManager {
     private lateinit var activity: MainActivity
     private lateinit var packageManager: PackageManager
     private lateinit var windowManager: WindowManager
+    private var vibrator: Vibrator? = null
     private var layoutInflater: LayoutInflater? = null
     private var powerManager: PowerManager? = null
     private var viewModel = AppViewModel()
+    private var service: AppService? = null
+    private var isBound = false
+    val conn: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+            isBound = true
+            val myBinder: AppService.MyBinder = binder as AppService.MyBinder
+            service = myBinder.appService
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            isBound = false
+        }
+    }
 
     @SuppressLint("StaticFieldLeak")
     private lateinit var navController: NavHostController
@@ -42,13 +59,16 @@ object ModelManager {
         ModelManager.activity = activity
         usageStatsManager = activity.getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
         EventManager.usageStatsManager = usageStatsManager
-        powerManager = activity.getSystemService(Context.POWER_SERVICE) as PowerManager
+        powerManager = activity.getSystemService(POWER_SERVICE) as PowerManager
         windowManager = ModelManager.activity.getSystemService(WINDOW_SERVICE) as WindowManager
         layoutInflater =
-            activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            activity.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
         packageManager = activity.packageManager
+        activity.bindService(Intent(activity, AppService::class.java), conn, BIND_AUTO_CREATE)
+        vibrator = activity.getSystemService(VIBRATOR_SERVICE) as Vibrator?
     }
 
+    fun getService() = service
     fun getViewModel() = viewModel
     fun setViewModel(model: AppViewModel) {
         viewModel = model
@@ -242,13 +262,33 @@ object ModelManager {
         return Pair(appName, total)
     }
 
-    private fun openSuspendedWindowPermission() {
+    fun openSuspendedWindowPermission() {
         if (!hasPermission(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW)) {
-            Toast.makeText(activity, "请在设置里开启悬浮窗权限!", Toast.LENGTH_LONG).show()
+            Toast.makeText(activity, "在设置里找到 和屏 然后开启权限!", Toast.LENGTH_LONG).show()
             getMainActivity().startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
         }
     }
 
+    fun lockScreen() {
+        val mainActivity = getMainActivity()
+        val adminComponent = ComponentName(mainActivity, Admin::class.java)
+        val devicePolicyManager =
+            mainActivity.getSystemService(DEVICE_POLICY_SERVICE) as DevicePolicyManager
+
+        if (!devicePolicyManager.isAdminActive(adminComponent)) {
+            val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent)
+            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "一键锁屏,非常好用");
+            mainActivity.startActivityForResult(intent, 1)
+        } else {
+            devicePolicyManager.lockNow()
+
+        }
+    }
+
+    fun vibrator() {
+        vibrator?.vibrate(500L)
+    }
 
 }
 
@@ -292,7 +332,7 @@ data class AppInfo(
 
 fun hasPermission(permission: String): Boolean {
     val mode = (ModelManager.getMainActivity()
-        .getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager)
+        .getSystemService(APP_OPS_SERVICE) as AppOpsManager)
         .checkOpNoThrow(
             permission,
             Process.myUid(), ModelManager.getMainActivity().packageName

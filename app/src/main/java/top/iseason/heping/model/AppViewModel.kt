@@ -18,6 +18,7 @@ class AppViewModel : ViewModel() {
     private val _isRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val healthViewState = _healthViewState.asStateFlow()
     val isRefreshing = _isRefreshing.asStateFlow()
+    var initPage = 0
     var isInit = false
     private var _pastUsageList: MutableStateFlow<List<List<AppInfo>>> =
         MutableStateFlow(emptyList())

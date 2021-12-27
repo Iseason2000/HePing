@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -20,7 +21,6 @@ import top.iseason.heping.ui.theme.HePingTheme
 
 
 class MainActivity : ComponentActivity() {
-
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +52,18 @@ class MainActivity : ComponentActivity() {
         super.onPause()
         // 这是前提——你的app至少运行了一个service。这里表示当进程不在前台时，马上开启一个service
 //        startService(Intent(this, AppService::class.java))
+    }
+
+    override fun onDestroy() {
+        unbindService(ModelManager.conn)
+        super.onDestroy()
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (ModelManager.getService()?.focusTime?.isFocusing == true) {
+            return false
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
 }

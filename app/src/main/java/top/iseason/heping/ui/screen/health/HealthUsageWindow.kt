@@ -37,7 +37,7 @@ import top.iseason.heping.utils.Util
 
 
 @Composable
-fun UsageWindow(viewModel: AppViewModel) {
+fun HealthUsageWindow(viewModel: AppViewModel) {
 
     val viewState by viewModel.healthViewState.collectAsState()
     var isOpenSetting by remember { mutableStateOf(false) }
@@ -183,8 +183,6 @@ fun UsageWindow(viewModel: AppViewModel) {
 @Composable
 fun Items(appInfoList: List<AppInfo>, maxUseTime: Long, viewModel: AppViewModel) {
     val grayColor = MaterialTheme.colors.onError
-    var heightPre by remember { mutableStateOf(0.0F) }
-    LaunchedEffect(Unit) { heightPre = 1.0F }
     Column(horizontalAlignment = Alignment.End) {
         Text(
             text = Util.longTimeFormat(appInfoList[0].getTotalTime()),
@@ -223,7 +221,7 @@ fun Items(appInfoList: List<AppInfo>, maxUseTime: Long, viewModel: AppViewModel)
                         if (percentage > 0.01) {
                             Box(
                                 modifier = Modifier
-                                    .size(17.dp, (150.0 * percentage * heightPre).toInt().dp)
+                                    .size(17.dp, (150.0 * percentage).toInt().dp)
                                     .clip(RoundedCornerShape(20))
                                     .background(color = barColor)
                                     .animateContentSize()

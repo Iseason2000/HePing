@@ -4,13 +4,20 @@ import android.app.AppOpsManager
 import android.content.Intent
 import android.provider.Settings
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -424,13 +431,7 @@ fun TimePicker() {
                     Text(text = "你还没有授予悬浮窗权限，将无法启用限额功能!")
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = {
-                        Toast.makeText(
-                            ModelManager.getMainActivity(),
-                            "在设置里找到 和屏 然后开启权限!",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        ModelManager.getMainActivity()
-                            .startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+                        ModelManager.openSuspendedWindowPermission()
                     }) {
                         Text(text = "去授予")
                     }
@@ -531,6 +532,154 @@ fun TimeText(time: Int, isOn: Boolean, timeFormatter: (Int) -> Int) {
         fontWeight = FontWeight.Bold,
         color = if (isOn) MaterialTheme.colors.primary else Color(0XFFD9D9D9)
     )
+}
+
+@Composable
+fun ScrollerPicker(max: Int, default: Int, offset: Int, onValueChange: ((Int) -> Unit)) {
+    var count by remember { mutableStateOf(default) }
+    val coroutineScope = rememberCoroutineScope()
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = default - 1,
+        initialFirstVisibleItemScrollOffset = offset
+    )
+    var isDragging = false
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemScrollOffset }
+            .collect {
+                if (isDragging) return@collect
+                isDragging = true
+                coroutineScope.launch {
+                    delay(300L)
+                    isDragging = false
+                    listState.animateScrollToItem(
+                        listState.firstVisibleItemIndex,
+                        offset
+                    )
+                }
+            }
+    }
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }.collect {
+            count = it + 1
+            onValueChange(count)
+        }
+    }
+    LazyColumn(
+        state = listState,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.height(80.dp)
+    ) {
+        item { Spacer(modifier = Modifier.height(28.dp)) }
+        items(max) { index ->
+            Box(
+                modifier = Modifier.size(30.dp, 28.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = (index + 1).toString(),
+                    fontSize = if (count == index + 1) 20.sp else 14.sp,
+                    fontWeight = if (count == index + 1) FontWeight.Bold else FontWeight.Normal,
+                    color = if (count == index + 1) MaterialTheme.colors.primary else MaterialTheme.colors.secondaryVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+        item { Spacer(modifier = Modifier.height(28.dp)) }
+    }
+}
+
+@Composable
+fun ExitDialog(
+    title: String,
+    tip: String,
+    isVisual: (Unit) -> Boolean,
+    onConfirm: (Boolean) -> Unit
+) {
+    var state by remember { mutableStateOf(false) }
+    state = isVisual(Unit)
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+        AnimatedVisibility(
+            visible = state, enter = slideInVertically(
+                initialOffsetY = { it },
+                animationSpec = tween(durationMillis = 300)
+            ), exit = slideOutVertically(
+                targetOffsetY = { it },
+                animationSpec = tween(durationMillis = 300)
+            )
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = title,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = tip,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(122.dp, 48.dp)
+                                .clip(RoundedCornerShape(24.dp))
+                                .background(color = MaterialTheme.colors.secondaryVariant)
+                                .clickable(
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() }) {
+                                    onConfirm(true)
+                                }
+                        ) {
+                            Text(
+                                text = "确认退出", fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colors.secondary
+                            )
+                        }
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(122.dp, 48.dp)
+                                .clip(RoundedCornerShape(24.dp))
+                                .background(color = MaterialTheme.colors.secondary)
+                                .clickable(
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() }) {
+                                    onConfirm(false)
+                                }
+                        ) {
+                            Text(
+                                text = "继续坚持", fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colors.secondaryVariant
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+            }
+        }
+    }
 }
 
 private val VerticalScrollConsumer = object : NestedScrollConnection {

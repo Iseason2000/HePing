@@ -56,7 +56,7 @@ fun HealthScreen(viewModel: AppViewModel) {
     ) {
         LazyColumn(modifier = Modifier.padding(all = 16.dp)) {
             item {
-                UsageWindow(viewModel = viewModel)
+                HealthUsageWindow(viewModel = viewModel)
             }
             item {
                 MoreAppInfo()

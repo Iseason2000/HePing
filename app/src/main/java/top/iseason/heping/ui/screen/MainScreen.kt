@@ -25,10 +25,13 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.flow.collect
 import top.iseason.heping.R
 import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.ui.screen.focus.FocusScreen
+import top.iseason.heping.ui.screen.focus.FocusSettingScreen
+import top.iseason.heping.ui.screen.focus.Focusing
 import top.iseason.heping.ui.screen.health.*
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -80,17 +83,42 @@ fun MainScreen(viewModel: AppViewModel) {
         }) {
             HealthTiredRecord()
         }
+        composable(route = "focusSetting", exitTransition = {
+            slideOutHorizontally(targetOffsetX = { it })
+        }, enterTransition = {
+            slideInHorizontally(initialOffsetX = { it })
+        }) {
+            FocusSettingScreen()
+        }
+        composable(route = "focusing", exitTransition = {
+            slideOutHorizontally(targetOffsetX = { it })
+        }, enterTransition = {
+            slideInHorizontally(initialOffsetX = { it })
+        }) {
+            Focusing()
+        }
     }
 }
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MyScaffold(viewModel: AppViewModel) {
-    var selectedItem by remember { mutableStateOf(0) }
+    var selectedItem by remember { mutableStateOf(viewModel.initPage) }
     val pagerState = rememberPagerState()
     val items = listOf("健康", "专注", "我的")
+    LaunchedEffect(Unit) {
+        if (ModelManager.getService()?.focusTime?.isFocusing == true) {
+            println(1)
+            ModelManager.getNavController().navigate("focusing")
+        }
+    }
     LaunchedEffect(selectedItem) {
         pagerState.animateScrollToPage(selectedItem)
+    }
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect {
+            viewModel.initPage = pagerState.currentPage
+        }
     }
     Scaffold(
         topBar = {

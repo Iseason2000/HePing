@@ -8,7 +8,6 @@ import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -33,12 +32,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import top.iseason.heping.R
 import top.iseason.heping.manager.ConfigManager
+import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
+import top.iseason.heping.ui.screen.controller.ScrollerPicker
 import top.iseason.heping.ui.theme.GreenSurface
 
 @Composable
@@ -64,7 +62,7 @@ fun FocusScreen(viewModel: AppViewModel) {
         ) {
             focusManager.clearFocus()
         }) {
-        item { QuickFocus(viewModel) }
+        item { QuickFocus() }
         item { Spacer(modifier = Modifier.height(16.dp)) }
         item {
             Row(
@@ -72,11 +70,99 @@ fun FocusScreen(viewModel: AppViewModel) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 TomatoCard()
-                TomatoCard()
+                FocusSetting()
             }
+        }
+        item { Spacer(modifier = Modifier.height(16.dp)) }
+        item {
+            AboutTomato()
         }
     }
 }
+
+@Composable
+fun AboutTomato() {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(88.dp)
+            .clip(MaterialTheme.shapes.large)
+            .clickable {
+            }
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+
+            Column {
+                Text(
+                    text = "了解“番茄工作法”",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "一种简单易行的时间管理方法",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = MaterialTheme.colors.onError
+                )
+            }
+            Image(
+                painter = painterResource(id = R.drawable.tomato_circle),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(54.dp, 35.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun FocusSetting() {
+    Surface(
+        modifier = Modifier
+            .defaultMinSize(minWidth = 156.dp)
+            .height(88.dp)
+            .clip(MaterialTheme.shapes.large)
+            .clickable {
+                ModelManager
+                    .getNavController()
+                    .navigate("focusSetting")
+            }
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+
+            Column {
+                Text(
+                    text = "专注设置",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "自定义专注功能",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = MaterialTheme.colors.onError
+                )
+            }
+            Image(
+                painter = painterResource(id = R.drawable.hourglass_bottom_black),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(32.dp, 32.dp)
+            )
+        }
+    }
+}
+
 
 @Composable
 fun TomatoCard() {
@@ -115,7 +201,7 @@ fun TomatoCard() {
                     Text(
                         text = "选择循环次数",
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Normal,
                         color = MaterialTheme.colors.onError
                     )
                 }
@@ -139,56 +225,7 @@ fun TomatoCard() {
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
                 )
-                val coroutineScope = rememberCoroutineScope()
-
-                val listState = rememberLazyListState(
-                    initialFirstVisibleItemIndex = count - 1,
-                    initialFirstVisibleItemScrollOffset = 20
-                )
-                var isDragging = false
-                LaunchedEffect(listState) {
-                    snapshotFlow { listState.firstVisibleItemScrollOffset }
-                        .collect {
-                            if (isDragging) return@collect
-                            isDragging = true
-                            coroutineScope.launch {
-                                delay(300L)
-                                isDragging = false
-                                listState.animateScrollToItem(
-                                    listState.firstVisibleItemIndex,
-                                    20
-                                )
-                            }
-                        }
-                }
-                LaunchedEffect(listState) {
-                    snapshotFlow { listState.firstVisibleItemIndex }.collect {
-                        count = it + 1
-                    }
-                }
-                LazyColumn(
-                    state = listState,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                ) {
-                    item { Spacer(modifier = Modifier.height(28.dp)) }
-                    items(10) { index ->
-                        Box(
-                            modifier = Modifier.size(30.dp, 28.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = (index + 1).toString(),
-                                fontSize = if (count == index + 1) 20.sp else 16.sp,
-                                fontWeight = if (count == index + 1) FontWeight.Medium else FontWeight.Normal,
-                                color = if (count == index + 1) MaterialTheme.colors.primary else MaterialTheme.colors.secondaryVariant,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                    item { Spacer(modifier = Modifier.height(28.dp)) }
-
-                }
+                ScrollerPicker(10, count, 20, onValueChange = { count = it })
                 Text(
                     text = "次",
                     fontSize = 12.sp,
@@ -222,9 +259,8 @@ fun TomatoCard() {
     }
 }
 
-
 @Composable
-fun QuickFocus(viewModel: AppViewModel) {
+fun QuickFocus() {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -302,8 +338,14 @@ fun EditButton(id: Int, defaultValue: Int = 0) {
     if (!isEditing)
         TextButton(
             onClick = {
-                if (!isEditing)
-                    println(minutes)
+                if (!isEditing && minutes > 0) {
+                    ModelManager.getService()?.focusTime?.start(minutes * 60)
+                    ModelManager.getNavController().navigate("focusing")
+                    if (ConfigManager.getBoolean("Focus-Setting-AutoLock"))
+                        ModelManager.lockScreen()
+                    if (ConfigManager.getBoolean("Focus-Setting-StartTip"))
+                        ModelManager.vibrator()
+                }
             },
             shape = MaterialTheme.shapes.medium,
             colors = ButtonDefaults.textButtonColors(backgroundColor = GreenSurface),

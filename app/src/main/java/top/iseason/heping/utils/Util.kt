@@ -16,8 +16,14 @@ object Util {
     fun longTimeFormat2(time: Long): String {
         val hours = (time / 3600000).toInt()
         val minutes = ((time - hours * 3600000) / 60000).toInt()
-        if (hours == 0) return "${minutes}分钟"
-        return "${formatTime2(hours)}:${formatTime2(minutes)}:"
+        return "${formatTime2(hours)}:${formatTime2(minutes)}"
+    }
+
+    @JvmStatic
+    fun longTimeFormat3(time: Long): String {
+        val minutes = (time / 60000).toInt()
+        val second = (((time - minutes * 60000)) / 1000L).toInt()
+        return "${formatTime2(minutes)}:${formatTime2(second)}"
     }
 
 

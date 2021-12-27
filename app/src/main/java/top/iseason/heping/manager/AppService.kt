@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.Intent
 import android.graphics.Color
+import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresApi
@@ -23,7 +24,7 @@ class AppService : Service() {
     private var isAppLimit = false
     private var isTiredLimit = false
     private var isNightLimit = false
-
+    private var isFocusLimit = false
     private val screenChecker = Thread {
         while (true) {
             val interactive = ModelManager.isInteractive()
@@ -61,12 +62,12 @@ class AppService : Service() {
                     windowManager.showWindow()
                 } else {
                     isAppLimit = false
-                    if (!(isTiredLimit || isNightLimit))
+                    if (!(isTiredLimit || isNightLimit || isFocusLimit))
                         windowManager.hideWindow()
                 }
             } else {
                 isAppLimit = false
-                if (!(isTiredLimit || isNightLimit))
+                if (!(isTiredLimit || isNightLimit || isFocusLimit))
                     windowManager.hideWindow()
             }
         }
@@ -89,13 +90,13 @@ class AppService : Service() {
                     windowManager.showWindow()
                     true
                 } else {
-                    if (!(isAppLimit || isNightLimit))
+                    if (!(isAppLimit || isNightLimit || isFocusLimit))
                         windowManager.hideWindow()
                     false
                 }
             } else {
                 isTiredLimit = false
-                if (!(isAppLimit || isNightLimit))
+                if (!(isAppLimit || isNightLimit || isFocusLimit))
                     windowManager.hideWindow()
             }
         }
@@ -106,25 +107,24 @@ class AppService : Service() {
             val isOpen = ConfigManager.getBoolean("Setting-SleepPlain")
             if (!isOpen) {
                 isNightLimit = false
-                if (!(isAppLimit || isTiredLimit))
+                if (!(isAppLimit || isTiredLimit || isFocusLimit))
                     windowManager.hideWindow()
                 continue
             }
             val timeSet = ConfigManager.getString("Setting-SleepPlain-TimeSet")
             if (timeSet == null) {
                 isNightLimit = false
-                if (!(isAppLimit || isTiredLimit))
+                if (!(isAppLimit || isTiredLimit || isFocusLimit))
                     windowManager.hideWindow()
                 continue
             }
             val split = timeSet.split(',')
             val fistHour = split[0].toInt()
             val fistMinute = split[1].toInt()
-            val lastHour = split[2].toInt()
+            var lastHour = split[2].toInt()
             val lastMinute = split[3].toInt()
-
             val sleepTimeStart = Calendar.getInstance().apply {
-                if (fistHour >= 12 && fistHour > lastHour) {
+                if (fistHour >= 12 && fistHour > lastHour && lastHour > 0) {
                     set(Calendar.DATE, -1)
                 }
                 set(Calendar.HOUR_OF_DAY, fistHour)
@@ -132,6 +132,7 @@ class AppService : Service() {
                 set(Calendar.SECOND, 0)
             }
             val sleepTimeEnd = Calendar.getInstance().apply {
+                if (lastHour == 0) lastHour = 24
                 set(Calendar.HOUR_OF_DAY, lastHour)
                 set(Calendar.MINUTE, lastMinute)
                 set(Calendar.SECOND, 0)
@@ -148,15 +149,46 @@ class AppService : Service() {
                 continue
             }
             isNightLimit = false
-            if (!(isAppLimit || isTiredLimit))
+            if (!(isAppLimit || isTiredLimit || isFocusLimit))
                 windowManager.hideWindow()
         }
     }
-
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
+    private val focusLimiter = Thread {
+        while (true) {
+            Thread.sleep(1000)
+            if (isNightLimit || isTiredLimit || isAppLimit) {
+                isFocusLimit = false
+                continue
+            }
+            if (!focusTime.isFocusing) {
+                if (!(isTiredLimit || isNightLimit || isAppLimit)) {
+                    isFocusLimit = false
+                    windowManager.hideWindow()
+                }
+                continue
+            }
+            val packageName = EventManager.currentEvent.packageName
+            if (packageName != "top.iseason.heping" && packageName != null) {
+                windowManager.setText(
+                    "专注时间还有",
+                    Util.longTimeFormatDetail2((focusTime.focusTime - focusTime.currentTime) * 1000L),
+                    "放下手机继续坚持吧!"
+                )
+                isFocusLimit = true
+                windowManager.showWindow()
+            } else if (!(isTiredLimit || isNightLimit || isAppLimit)) {
+                isFocusLimit = false
+                windowManager.hideWindow()
+            }
+        }
     }
 
+    class MyBinder(val appService: AppService) : Binder()
+
+    private val binder: Binder = MyBinder(this)
+    override fun onBind(intent: Intent?): IBinder {
+        return binder
+    }
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate() {
@@ -174,6 +206,7 @@ class AppService : Service() {
         nightLimiter.start()
         tiredLimiter.start()
         timeLimiter.start()
+        focusLimiter.start()
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
             startForeground(NOTIFICATION_ID, createForegroundNotification())
         }
@@ -181,6 +214,7 @@ class AppService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    val focusTime = FocusTimer()
     override fun onDestroy() {
         super.onDestroy()
         stopForeground(true)
@@ -226,13 +260,39 @@ class AppService : Service() {
             .build()
     }
 
+    class FocusTimer(
+        var isFocusing: Boolean = false,
+        var focusTime: Int = 600, //设定时间 单位秒
+        var currentTime: Int = 0
+    ) {
+        var timer = Timer()
+        fun start(minutes: Int): Boolean {
+            if (isFocusing) return false
+            currentTime = 0
+            focusTime = minutes
+            isFocusing = true
+            timer = Timer()
+            timer.schedule(object : TimerTask() {
+                override fun run() {
+                    currentTime++
+                    if (currentTime > focusTime) {
+                        timer.cancel()
+                        isFocusing = false
+                    }
+                }
+            }, 0L, 1000L)
+            return true
+        }
+
+        fun stop() {
+            timer.cancel()
+            isFocusing = false
+        }
+    }
+
     companion object {
         private const val NOTIFICATION_ID = 2233
     }
 
-//    fun getUsedTIme(packageName: String): String? {
-//
-//    }
-
-
 }
+

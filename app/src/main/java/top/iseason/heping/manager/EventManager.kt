@@ -51,14 +51,9 @@ object EventManager {
             if (eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
                 currentEvent = event
             }
-//            println("${count++} ${event.packageName} ${event.eventType} ${event.timeStamp}")
         }
-
-//        println(currentTime - System.currentTimeMillis())
-        // 按照时间排序
         return null
     }
-
 }
 
 fun Pair<Long, Long>.calculateTime() = this.second - this.first
