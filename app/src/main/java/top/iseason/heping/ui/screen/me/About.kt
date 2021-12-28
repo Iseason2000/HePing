@@ -149,8 +149,6 @@ fun MessageBar(message: String, tile: String? = null, onClick: () -> Unit) {
                     tint = MaterialTheme.colors.primary
                 )
             }
-
-
         }
 
     }

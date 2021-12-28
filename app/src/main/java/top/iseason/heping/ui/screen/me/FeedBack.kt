@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import top.iseason.heping.R
@@ -53,7 +54,11 @@ fun FeedBack() {
                 Spacer(modifier = Modifier.height(24.dp))
             }
             item {
-                SettingTitle(title = "关于作者@Iseason")
+                SettingTitle(title = "关于作者")
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            item {
+                TextCard("制作人员", "界面设计: @Wayne(1823238362) \n开发: @Iseason(1347811744)")
                 Spacer(modifier = Modifier.height(16.dp))
             }
             item {
@@ -83,7 +88,6 @@ fun FeedBack() {
                 Spacer(modifier = Modifier.height(24.dp))
             }
             item {
-                Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
@@ -102,14 +106,20 @@ fun FeedBack() {
                             .clip(MaterialTheme.shapes.large)
                     ) {
                         SelectionContainer {
-                            Column(modifier = Modifier.padding(all = 16.dp)) {
-                                Text(
-                                    text = "E-mail: \nIseason2000@qq.com",
-                                    fontSize = 12.sp,
+                            Column(
+                                modifier = Modifier.padding(all = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.mail),
+                                    contentDescription = null,
+                                    tint = Color.Black,
+                                    modifier = Modifier.size(50.dp)
                                 )
                                 Text(
-                                    text = "QQ: \n1347811744",
-                                    fontSize = 12.sp
+                                    text = "Iseason2000@qq.com",
+                                    fontSize = 12.sp,
+                                    textAlign = TextAlign.Center
                                 )
                             }
                         }

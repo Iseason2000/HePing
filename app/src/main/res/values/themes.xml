@@ -3,6 +3,6 @@
 
     <style name="Theme.HePing" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@color/white</item>
-        <!--        <item name="android:windowBackground">@drawable/heping_icon</item>-->
+        <item name="android:windowBackground">@mipmap/start</item>
     </style>
 </resources>

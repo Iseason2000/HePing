@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
         } else {
             startService(Intent(this, AppService::class.java))
         }
+
         val viewModel = AppViewModel()
         setContent {
             LaunchedEffect(Unit) {
