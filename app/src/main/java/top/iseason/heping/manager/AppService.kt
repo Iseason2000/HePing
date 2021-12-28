@@ -207,7 +207,6 @@ class AppService : Service() {
         tiredLimiter.start()
         timeLimiter.start()
         focusLimiter.start()
-        tomatoCircle.start(5, 5, 2)
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
             startForeground(NOTIFICATION_ID, createForegroundNotification())
         }
@@ -310,6 +309,8 @@ class AppService : Service() {
             relaxTime = minutes
             isRelaxing = true
             timer = Timer()
+            if (ConfigManager.getBoolean("Focus-Setting-TomatoTip"))
+                ModelManager.vibrator()
             timer.schedule(object : TimerTask() {
                 override fun run() {
                     currentTime++

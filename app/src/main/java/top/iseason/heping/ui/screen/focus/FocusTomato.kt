@@ -34,14 +34,28 @@ fun FocusTomato() {
     val color = MaterialTheme.colors.background
     val color2 = MaterialTheme.colors.primaryVariant
     var isFocusing by remember { mutableStateOf(true) }
+    var isRelaxing by remember { mutableStateOf(true) }
+    var isCircle by remember { mutableStateOf(true) }
     var isExit by remember { mutableStateOf(false) }
     var isPreExit by remember { mutableStateOf(false) }
     var maxTime by remember { mutableStateOf(0) }
     var currentTime by remember { mutableStateOf(0) }
-    val timer = ModelManager.getService()?.focusTime ?: return
-    isFocusing = timer.isFocusing
-    maxTime = timer.focusTime
-    currentTime = timer.currentTime
+    val focusTimer = ModelManager.getService()?.focusTime ?: return
+    val relaxTimer = ModelManager.getService()?.relaxTime ?: return
+    val tomatoTimer = ModelManager.getService()?.tomatoCircle ?: return
+    isCircle = tomatoTimer.isCircle
+    isFocusing = focusTimer.isFocusing
+    isRelaxing = relaxTimer.isRelaxing
+    if (isCircle) {
+        if (isFocusing && !isRelaxing) {
+            maxTime = focusTimer.focusTime
+            currentTime = focusTimer.currentTime
+        }
+        if (isRelaxing && !isFocusing) {
+            maxTime = relaxTimer.relaxTime
+            currentTime = relaxTimer.currentTime
+        }
+    }
     LaunchedEffect(Unit) {
         systemUiController.setSystemBarsColor(
             color = color,
@@ -58,28 +72,46 @@ fun FocusTomato() {
     }
     val animateFloat = remember { Animatable(currentTime.toFloat() / maxTime) }
     LaunchedEffect(Unit) {
-        while (isFocusing) {
-            delay(1000L)
+        while (isCircle) {
+            if (!isCircle) return@LaunchedEffect
+            isCircle = tomatoTimer.isCircle
             if (currentTime > maxTime) {
-                isFocusing = false
+                isFocusing = !isFocusing
+                isRelaxing = !isRelaxing
+                currentTime = 0
+                maxTime = 0
+                if (isFocusing && !isRelaxing) {
+                    maxTime = focusTimer.focusTime
+                    currentTime = focusTimer.currentTime
+                    animateFloat.snapTo(0F)
+                    continue
+                }
+                if (isRelaxing && !isFocusing) {
+                    maxTime = relaxTimer.relaxTime
+                    currentTime = relaxTimer.currentTime
+                    animateFloat.snapTo(0F)
+                    continue
+                }
                 animateFloat.snapTo(0F)
-
-                return@LaunchedEffect
+                continue
             }
+            delay(1000L)
             currentTime++
         }
     }
     LaunchedEffect(isExit) {
         if (isExit) {
-            ModelManager.getService()?.focusTime?.stop()
+            ModelManager.getService()?.tomatoCircle?.stop()
             ModelManager.getNavController().popBackStack()
         }
     }
-    LaunchedEffect(animateFloat) {
+    LaunchedEffect(isFocusing) {
+        var i = maxTime - currentTime
+        if (i < 0) i = 0
         animateFloat.animateTo(
             targetValue = 1f,
             animationSpec = tween(
-                durationMillis = (maxTime - currentTime) * 1000,
+                durationMillis = i * 1000,
                 easing = LinearEasing
             )
         )
@@ -92,7 +124,7 @@ fun FocusTomato() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.height(135.dp))
             Text(
-                text = if (isFocusing) "专注中" else "专注已完成",
+                text = if (!isCircle) "专注已完成" else if (isFocusing) "专注中" else "休息中",
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
@@ -100,10 +132,10 @@ fun FocusTomato() {
             Spacer(modifier = Modifier.height(8.dp))
             val t =
                 System.currentTimeMillis() - Util.getDate(0).timeInMillis + (maxTime - currentTime) * 1000L
-            val text = if (isFocusing) {
+            val text = if (isCircle) {
                 "预计 ${Util.longTimeFormat2(t)} 结束"
             } else {
-                "${Util.longTimeFormat2(t)} - ${Util.longTimeFormat2(t - maxTime * 1000L)}"
+                "${Util.longTimeFormat2(t)} - ${Util.longTimeFormat2(t - (tomatoTimer.maxTimes * (focusTimer.focusTime + relaxTimer.relaxTime)) * 1000L)}"
             }
             Text(
                 text = text,
@@ -114,7 +146,7 @@ fun FocusTomato() {
             Spacer(modifier = Modifier.height(32.dp))
             val colorN = MaterialTheme.colors.primary
             val colorM = MaterialTheme.colors.secondaryVariant
-            if (isFocusing)
+            if (isCircle)
                 Box(contentAlignment = Alignment.Center) {
                     Canvas(modifier = Modifier.size(230.dp)) {
                         val rate = size.height / 230
@@ -128,8 +160,10 @@ fun FocusTomato() {
                         )
 
                     }
+                    val i = maxTime - currentTime
+
                     Text(
-                        text = Util.longTimeFormatDetail2((maxTime - currentTime) * 1000L),
+                        text = Util.longTimeFormatDetail2((if (i < 0) 0 else i) * 1000L),
                         fontSize = 36.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -144,12 +178,12 @@ fun FocusTomato() {
 
         }
         Row(
-            horizontalArrangement = if (isFocusing) Arrangement.SpaceBetween else Arrangement.Center,
+            horizontalArrangement = if (isCircle) Arrangement.SpaceBetween else Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 49.dp)
         ) {
-            if (isFocusing)
+            if (isCircle)
                 Column(horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.clickable(
                         interactionSource = remember { MutableInteractionSource() },
@@ -174,7 +208,7 @@ fun FocusTomato() {
                     indication = null
                 ) {
                     isPreExit = true
-                    if (!isFocusing) {
+                    if (!isCircle) {
                         ModelManager.getService()?.focusTime?.stop()
                         ModelManager.getNavController().popBackStack()
                     }
@@ -194,7 +228,7 @@ fun FocusTomato() {
     }
     ExitDialog(
         title = "退出专注",
-        "再坚持${Util.longTimeFormatDetail2((maxTime - currentTime) * 1000L)}即可完成本次专注",
+        "再坚持${tomatoTimer.maxTimes - tomatoTimer.count}次循环即可完成本次番茄工作",
         isVisual = { isPreExit },
         onConfirm = {
             isExit = it

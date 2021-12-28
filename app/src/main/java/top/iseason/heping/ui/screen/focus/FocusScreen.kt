@@ -1,5 +1,7 @@
 package top.iseason.heping.ui.screen.focus
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -89,6 +91,12 @@ fun AboutTomato() {
             .height(88.dp)
             .clip(MaterialTheme.shapes.large)
             .clickable {
+                ModelManager
+                    .getMainActivity()
+                    .startActivity(Intent(Intent.ACTION_VIEW).apply {
+                        data =
+                            Uri.parse("https://baike.baidu.com/item/%E7%95%AA%E8%8C%84%E5%B7%A5%E4%BD%9C%E6%B3%95/6353502")
+                    })
             }
     ) {
         Row(
@@ -241,12 +249,14 @@ fun TomatoCard() {
                         if (int == 0) return@TextButton
                         val int1 = ConfigManager.getInt("Focus-Setting-Tomato-ReleaseTime")
                         if (int == 0) return@TextButton
-                        if (!tomatoCircle.start(count, int, int1)) {
+                        if (!tomatoCircle.start(count, int * 60, int1 * 60)) {
                             Toast.makeText(
                                 ModelManager.getMainActivity(),
                                 "当前有其他任务正在运行!",
                                 Toast.LENGTH_SHORT
                             ).show()
+                        } else {
+                            ModelManager.getNavController().navigate("focusTomato")
                         }
                     },
                     modifier = Modifier

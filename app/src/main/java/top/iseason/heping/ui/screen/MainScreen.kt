@@ -31,6 +31,7 @@ import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.ui.screen.focus.FocusScreen
 import top.iseason.heping.ui.screen.focus.FocusSettingScreen
+import top.iseason.heping.ui.screen.focus.FocusTomato
 import top.iseason.heping.ui.screen.focus.Focusing
 import top.iseason.heping.ui.screen.health.*
 
@@ -97,6 +98,13 @@ fun MainScreen(viewModel: AppViewModel) {
         }) {
             Focusing()
         }
+        composable(route = "focusTomato", exitTransition = {
+            slideOutHorizontally(targetOffsetX = { it })
+        }, enterTransition = {
+            slideInHorizontally(initialOffsetX = { it })
+        }) {
+            FocusTomato()
+        }
     }
 }
 
@@ -107,8 +115,10 @@ fun MyScaffold(viewModel: AppViewModel) {
     val pagerState = rememberPagerState()
     val items = listOf("健康", "专注", "我的")
     LaunchedEffect(Unit) {
-        if (ModelManager.getService()?.focusTime?.isFocusing == true) {
-            println(1)
+        val service = ModelManager.getService()
+        if (service?.tomatoCircle?.isCircle == true) {
+            ModelManager.getNavController().navigate("focusTomato")
+        } else if (service?.focusTime?.isFocusing == true) {
             ModelManager.getNavController().navigate("focusing")
         }
     }

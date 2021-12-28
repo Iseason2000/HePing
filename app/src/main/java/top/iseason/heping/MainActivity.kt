@@ -60,7 +60,10 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (ModelManager.getService()?.focusTime?.isFocusing == true) {
+        val service = ModelManager.getService()
+        if (service?.tomatoCircle?.isCircle == true) {
+            return false
+        } else if (service?.focusTime?.isFocusing == true) {
             return false
         }
         return super.onKeyDown(keyCode, event)
