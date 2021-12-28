@@ -1,5 +1,6 @@
 package top.iseason.heping
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -8,8 +9,10 @@ import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.core.content.ContextCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import top.iseason.heping.manager.AppService
@@ -21,6 +24,7 @@ import top.iseason.heping.ui.theme.HePingTheme
 
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("StateFlowValueCalledInComposition")
     @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,9 +35,23 @@ class MainActivity : ComponentActivity() {
         } else {
             startService(Intent(this, AppService::class.java))
         }
+        val viewModel = AppViewModel()
+        if (ConfigManager.getBoolean("MyTheme-AutoSwitch")) {
+            viewModel._isDarkMod.value = 0
+        } else {
+            val int = ConfigManager.getInt("MyTheme-Mode")
+            if (int != 0) {
+                viewModel._isDarkMod.value = int
+            }
+        }
         setContent {
-            val viewModel = AppViewModel()
-            HePingTheme {
+            val theme = viewModel.isDarkMod.collectAsState()
+            HePingTheme(
+                darkTheme = if (theme.value == 0) isSystemInDarkTheme() else when (theme.value) {
+                    1 -> false
+                    else -> true
+                }
+            ) {
                 val systemUiController = rememberSystemUiController()
                 val useDarkIcons = MaterialTheme.colors.isLight
                 val color = MaterialTheme.colors.primaryVariant

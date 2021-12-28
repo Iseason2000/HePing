@@ -125,8 +125,8 @@ fun TomatoTimePick() {
 }
 
 @Composable
-fun SettingLine(title: String, key: String) {
-    var isOpen by remember { mutableStateOf(false) }
+fun SettingLine(title: String, key: String, default: Boolean = false) {
+    var isOpen by remember { mutableStateOf(default) }
     if (ConfigManager.hasKey(key)) {
         isOpen = ConfigManager.getBoolean(key)
     }

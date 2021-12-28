@@ -34,6 +34,8 @@ import top.iseason.heping.ui.screen.focus.FocusSettingScreen
 import top.iseason.heping.ui.screen.focus.FocusTomato
 import top.iseason.heping.ui.screen.focus.Focusing
 import top.iseason.heping.ui.screen.health.*
+import top.iseason.heping.ui.screen.me.MyScreen
+import top.iseason.heping.ui.screen.me.MyTheme
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -105,6 +107,14 @@ fun MainScreen(viewModel: AppViewModel) {
         }) {
             FocusTomato()
         }
+        composable(route = "myThemeSetting", exitTransition = {
+            slideOutHorizontally(targetOffsetX = { it })
+        }, enterTransition = {
+            slideInHorizontally(initialOffsetX = { it })
+        }) {
+            MyTheme(viewModel)
+        }
+
     }
 }
 
@@ -139,6 +149,7 @@ fun MyScaffold(viewModel: AppViewModel) {
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Black,
                         modifier = Modifier.padding(top = 10.dp),
+                        color = Color.White
                     )
                 },
                 backgroundColor = MaterialTheme.colors.primaryVariant,
@@ -201,7 +212,7 @@ fun MyScaffold(viewModel: AppViewModel) {
                     FocusScreen(viewModel)
                 }
                 2 -> {
-
+                    MyScreen(viewModel)
                 }
             }
 

@@ -12,6 +12,13 @@ object ConfigManager {
     fun setSharedPreferences(config: SharedPreferences) {
         this.config = config
         this.configEditor = config.edit()
+        if (!hasKey("App-SetupTime")) {
+            setLong("App-SetupTime", System.currentTimeMillis())
+        }
+        if (!hasKey("MyTheme-AutoSwitch")) {
+            setBoolean("MyTheme-AutoSwitch", true)
+        }
+
     }
 
     @JvmStatic

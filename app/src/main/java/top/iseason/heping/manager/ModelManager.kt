@@ -89,6 +89,10 @@ object ModelManager {
         return powerManager1.isInteractive
     }
 
+    fun showToast(text: String) {
+        Toast.makeText(getMainActivity(), text, Toast.LENGTH_SHORT).show()
+    }
+
     private fun getPackageManager() = packageManager
 
     /**

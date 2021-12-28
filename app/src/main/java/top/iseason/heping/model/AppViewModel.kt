@@ -15,18 +15,24 @@ import top.iseason.heping.utils.Util
 class AppViewModel : ViewModel() {
     private val _healthViewState: MutableStateFlow<HealthViewState> =
         MutableStateFlow(HealthViewState())
-    private val _isRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val healthViewState = _healthViewState.asStateFlow()
+
+    private val _isRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isRefreshing = _isRefreshing.asStateFlow()
-    var initPage = 0
-    var isInit = false
+
+    val _isDarkMod: MutableStateFlow<Int> = MutableStateFlow(0)
+    val isDarkMod = _isDarkMod.asStateFlow()
+
     private var _pastUsageList: MutableStateFlow<List<List<AppInfo>>> =
         MutableStateFlow(emptyList())
     private val pastUsageList = _pastUsageList.asStateFlow()
+
     private fun emitState(viewState: HealthViewState) {
         _healthViewState.value = viewState
     }
 
+    var initPage = 0
+    var isInit = false
     fun refresh() {
         updateAppInfo()
     }
