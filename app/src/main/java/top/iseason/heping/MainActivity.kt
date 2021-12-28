@@ -11,6 +11,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.core.content.ContextCompat
@@ -36,29 +37,33 @@ class MainActivity : ComponentActivity() {
             startService(Intent(this, AppService::class.java))
         }
         val viewModel = AppViewModel()
-        if (ConfigManager.getBoolean("MyTheme-AutoSwitch")) {
-            viewModel._isDarkMod.value = 0
-        } else {
-            val int = ConfigManager.getInt("MyTheme-Mode")
-            if (int != 0) {
-                viewModel._isDarkMod.value = int
-            }
-        }
         setContent {
-            val theme = viewModel.isDarkMod.collectAsState()
-            HePingTheme(
-                darkTheme = if (theme.value == 0) isSystemInDarkTheme() else when (theme.value) {
-                    1 -> false
-                    else -> true
+            LaunchedEffect(Unit) {
+                ModelManager.setHideFromRecent(ConfigManager.getBoolean("Main-Setting-AutoHideFromRecent"))
+                if (ConfigManager.getBoolean("MyTheme-AutoSwitch")) {
+                    viewModel._isDarkMod.value = 0
+                } else {
+                    val int = ConfigManager.getInt("MyTheme-Mode")
+                    if (int != 0) {
+                        viewModel._isDarkMod.value = int
+                    }
                 }
+            }
+            val theme = viewModel.isDarkMod.collectAsState()
+            val isDrak = if (theme.value == 0) isSystemInDarkTheme() else when (theme.value) {
+                1 -> false
+                else -> true
+            }
+            HePingTheme(
+                darkTheme = isDrak
             ) {
                 val systemUiController = rememberSystemUiController()
-                val useDarkIcons = MaterialTheme.colors.isLight
-                val color = MaterialTheme.colors.primaryVariant
+                val color =
+                    if (!isDrak) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.background
                 SideEffect {
                     systemUiController.setSystemBarsColor(
                         color = color,
-                        darkIcons = !useDarkIcons
+                        darkIcons = !isDrak
                     )
                 }
                 MainScreen(viewModel)

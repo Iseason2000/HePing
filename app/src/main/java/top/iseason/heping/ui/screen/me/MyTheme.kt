@@ -1,6 +1,7 @@
 package top.iseason.heping.ui.screen.me
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -30,13 +31,26 @@ fun MyTheme(viewModel: AppViewModel) {
             modifier = Modifier
                 .padding(16.dp)
         ) {
+
             var selected by remember { mutableStateOf(1) }
+            selected = if (ConfigManager.getBoolean("MyTheme-AutoSwitch")) {
+                if (isSystemInDarkTheme()) 2 else 1
+            } else
+                ConfigManager.getInt("MyTheme-Mode")
+            LaunchedEffect(selected) {
+                viewModel._isDarkMod.value = selected
+            }
+            DisposableEffect(Unit) {
+                onDispose {
+                    if (ConfigManager.getBoolean("MyTheme-AutoSwitch"))
+                        viewModel._isDarkMod.value = 0
+                }
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-
                 ThemeCard(
                     "浅色",
                     GreenSecondary,
@@ -44,7 +58,6 @@ fun MyTheme(viewModel: AppViewModel) {
                     selected == 1,
                     modifier = Modifier.clickable {
                         selected = 1
-                        viewModel._isDarkMod.value = 1
                         ConfigManager.setBoolean("MyTheme-AutoSwitch", false)
                         ConfigManager.setInt("MyTheme-Mode", 1)
                     })
@@ -55,13 +68,12 @@ fun MyTheme(viewModel: AppViewModel) {
                     selected == 2,
                     modifier = Modifier.clickable {
                         selected = 2
-                        viewModel._isDarkMod.value = 2
                         ConfigManager.setBoolean("MyTheme-AutoSwitch", false)
                         ConfigManager.setInt("MyTheme-Mode", 2)
                     })
             }
             Spacer(modifier = Modifier.height(16.dp))
-            SettingLine(title = "深浅主题跟随系统设置", key = "MyTheme-AutoSwitch", selected == 0)
+            SettingLine(title = "深浅主题跟随系统设置", key = "MyTheme-AutoSwitch")
         }
     }
 }

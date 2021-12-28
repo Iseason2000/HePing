@@ -40,7 +40,6 @@ import top.iseason.heping.manager.ConfigManager
 import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.ui.screen.controller.ScrollerPicker
-import top.iseason.heping.ui.theme.GreenSurface
 
 @Composable
 fun FocusScreen(viewModel: AppViewModel) {
@@ -376,7 +375,7 @@ fun EditButton(id: Int, defaultValue: Int = 0) {
                 }
             },
             shape = MaterialTheme.shapes.medium,
-            colors = ButtonDefaults.textButtonColors(backgroundColor = GreenSurface),
+            colors = ButtonDefaults.textButtonColors(backgroundColor = MaterialTheme.colors.secondaryVariant),
             modifier = Modifier
                 .height(30.dp)
                 .pointerInput(Unit) {
@@ -437,8 +436,8 @@ fun EditButton(id: Int, defaultValue: Int = 0) {
             },
             modifier = Modifier
                 .size(60.dp, 30.dp)
-                .clip(MaterialTheme.shapes.large)
-                .background(GreenSurface)
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colors.secondaryVariant)
                 .focusRequester(focusRequester)
                 .onFocusChanged {
                     if (!isInit) return@onFocusChanged

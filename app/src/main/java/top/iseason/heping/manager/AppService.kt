@@ -275,7 +275,7 @@ class AppService : Service() {
             isFocusing = true
             timer = Timer()
             if (ConfigManager.getBoolean("Focus-Setting-StartTip"))
-                ModelManager.vibrator()
+                ModelManager.tip()
             if (ConfigManager.getBoolean("Focus-Setting-AutoLock"))
                 ModelManager.lockScreen()
             timer.schedule(object : TimerTask() {
@@ -293,7 +293,7 @@ class AppService : Service() {
             timer.cancel()
             isFocusing = false
             if (ConfigManager.getBoolean("Focus-Setting-EndTip"))
-                ModelManager.vibrator()
+                ModelManager.tip()
         }
     }
 
@@ -310,7 +310,7 @@ class AppService : Service() {
             isRelaxing = true
             timer = Timer()
             if (ConfigManager.getBoolean("Focus-Setting-TomatoTip"))
-                ModelManager.vibrator()
+                ModelManager.tip()
             timer.schedule(object : TimerTask() {
                 override fun run() {
                     currentTime++

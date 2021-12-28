@@ -88,7 +88,7 @@ fun MyScreen(viewModel: AppViewModel) {
                 SettingCard(
                     image = R.drawable.help_outline_black, title = "使用帮助", subTitle = "快速上手应用"
                 ) {
-
+                    ModelManager.getNavController().navigate("help")
                 }
             }
         }
@@ -103,11 +103,12 @@ fun MyScreen(viewModel: AppViewModel) {
                     title = "高级设置",
                     subTitle = "更多细项设定"
                 ) {
+                    ModelManager.getNavController().navigate("mainSetting")
                 }
                 SettingCard(
                     image = R.drawable.about, title = "关于和屏", subTitle = "联系开发者"
                 ) {
-
+                    ModelManager.getNavController().navigate("about")
                 }
             }
         }

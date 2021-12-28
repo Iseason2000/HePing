@@ -5,6 +5,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
@@ -119,7 +121,9 @@ fun FocusTomato() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.height(135.dp))
@@ -127,7 +131,8 @@ fun FocusTomato() {
                 text = if (!isCircle) "专注已完成" else if (isFocusing) "专注中" else "休息中",
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = if (MaterialTheme.colors.isLight) Color.Black else Color.White
             )
             Spacer(modifier = Modifier.height(8.dp))
             val t =
@@ -141,7 +146,8 @@ fun FocusTomato() {
                 text = text,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Normal,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = if (MaterialTheme.colors.isLight) Color.Black else Color.White
             )
             Spacer(modifier = Modifier.height(32.dp))
             val colorN = MaterialTheme.colors.primary
@@ -165,7 +171,8 @@ fun FocusTomato() {
                     Text(
                         text = Util.longTimeFormatDetail2((if (i < 0) 0 else i) * 1000L),
                         fontSize = 36.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = if (MaterialTheme.colors.isLight) Color.Black else Color.White
                     )
                 }
             else

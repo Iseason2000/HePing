@@ -1,5 +1,6 @@
 package top.iseason.heping.ui.screen
 
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -19,6 +20,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -34,8 +37,7 @@ import top.iseason.heping.ui.screen.focus.FocusSettingScreen
 import top.iseason.heping.ui.screen.focus.FocusTomato
 import top.iseason.heping.ui.screen.focus.Focusing
 import top.iseason.heping.ui.screen.health.*
-import top.iseason.heping.ui.screen.me.MyScreen
-import top.iseason.heping.ui.screen.me.MyTheme
+import top.iseason.heping.ui.screen.me.*
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -60,62 +62,57 @@ fun MainScreen(viewModel: AppViewModel) {
         }) {
             HealthTotalInfo()
         }
-        composable(route = "healthAppDetail/{packageName}", exitTransition = {
-            slideOutHorizontally(targetOffsetX = { it })
-        }, enterTransition = {
-            slideInHorizontally(initialOffsetX = { it })
-        }) {
+        navPage("healthAppDetail/{packageName}") {
             val packageName = it.arguments?.getString("packageName")
             if (packageName == null) {
                 navController.popBackStack()
-                return@composable
+                return@navPage
             }
             HealthAppDetail(packageName)
         }
-        composable(route = "healthSleep", exitTransition = {
-            slideOutHorizontally(targetOffsetX = { it })
-        }, enterTransition = {
-            slideInHorizontally(initialOffsetX = { it })
-        }) {
+        navPage("healthSleep") {
             HealthSleep()
         }
-        composable(route = "healthTired", exitTransition = {
-            slideOutHorizontally(targetOffsetX = { it })
-        }, enterTransition = {
-            slideInHorizontally(initialOffsetX = { it })
-        }) {
+        navPage("healthTired") {
             HealthTiredRecord()
         }
-        composable(route = "focusSetting", exitTransition = {
-            slideOutHorizontally(targetOffsetX = { it })
-        }, enterTransition = {
-            slideInHorizontally(initialOffsetX = { it })
-        }) {
+        navPage("focusSetting") {
             FocusSettingScreen()
         }
-        composable(route = "focusing", exitTransition = {
-            slideOutHorizontally(targetOffsetX = { it })
-        }, enterTransition = {
-            slideInHorizontally(initialOffsetX = { it })
-        }) {
+        navPage("focusing") {
             Focusing()
         }
-        composable(route = "focusTomato", exitTransition = {
-            slideOutHorizontally(targetOffsetX = { it })
-        }, enterTransition = {
-            slideInHorizontally(initialOffsetX = { it })
-        }) {
+        navPage("focusTomato") {
             FocusTomato()
         }
-        composable(route = "myThemeSetting", exitTransition = {
-            slideOutHorizontally(targetOffsetX = { it })
-        }, enterTransition = {
-            slideInHorizontally(initialOffsetX = { it })
-        }) {
+        navPage("myThemeSetting") {
             MyTheme(viewModel)
         }
-
+        navPage("mainSetting") {
+            MainSetting()
+        }
+        navPage("help") {
+            HelpScreen()
+        }
+        navPage("about") {
+            About()
+        }
+        navPage("feedBack") {
+            FeedBack()
+        }
     }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+fun NavGraphBuilder.navPage(
+    rout: String,
+    content: @Composable AnimatedVisibilityScope.(NavBackStackEntry) -> Unit
+) {
+    composable(route = rout, exitTransition = {
+        slideOutHorizontally(targetOffsetX = { it })
+    }, enterTransition = {
+        slideInHorizontally(initialOffsetX = { it })
+    }, content = content)
 }
 
 @OptIn(ExperimentalPagerApi::class)
@@ -152,7 +149,7 @@ fun MyScaffold(viewModel: AppViewModel) {
                         color = Color.White
                     )
                 },
-                backgroundColor = MaterialTheme.colors.primaryVariant,
+                backgroundColor = if (MaterialTheme.colors.isLight) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.background,
                 elevation = 0.dp
             )
         },
@@ -200,8 +197,10 @@ fun MyScaffold(viewModel: AppViewModel) {
         HorizontalPager(
             count = 3,
             state = pagerState,
-            modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.background)
         )
         { page: Int ->
             when (page) {
@@ -232,7 +231,7 @@ fun NavBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .background(MaterialTheme.colors.primaryVariant)
+                    .background(if (MaterialTheme.colors.isLight) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.background)
                     .padding(start = 22.dp)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
@@ -252,11 +251,11 @@ fun NavBar(
                     text = title,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = contentColorFor(MaterialTheme.colors.primaryVariant)
+                    color = Color.White
                 )
             }
         },
-        backgroundColor = Color(0xFFF3F6F5),
+        backgroundColor = if (MaterialTheme.colors.isLight) Color(0xFFF3F6F5) else MaterialTheme.colors.background,
         modifier = modifier, content = content
     )
 }

@@ -1,6 +1,7 @@
 package top.iseason.heping.manager
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.app.AppOpsManager
 import android.app.admin.DevicePolicyManager
 import android.app.usage.UsageEvents
@@ -11,6 +12,8 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.IBinder
 import android.os.PowerManager
 import android.os.Process
@@ -55,6 +58,8 @@ object ModelManager {
 
     @SuppressLint("StaticFieldLeak")
     private lateinit var navController: NavHostController
+
+    @SuppressLint("ServiceCast")
     fun setMainActivity(activity: MainActivity) {
         ModelManager.activity = activity
         usageStatsManager = activity.getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
@@ -290,8 +295,30 @@ object ModelManager {
         }
     }
 
+    fun tip() {
+        if (ConfigManager.getBoolean("Focus-Setting-TipSound")) {
+            tipSound()
+        }
+        vibrator()
+    }
+
+    fun tipSound() {
+        val notification: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val r = RingtoneManager.getRingtone(getMainActivity(), notification)
+        r.play()
+    }
+
     fun vibrator() {
         vibrator?.vibrate(500L)
+    }
+
+    fun setHideFromRecent(enabled: Boolean) {
+        (activity.getSystemService(ACTIVITY_SERVICE) as ActivityManager).let {
+            val tasks = it.appTasks
+            if (!tasks.isNullOrEmpty()) {
+                tasks[0].setExcludeFromRecents(enabled)
+            }
+        }
     }
 
 }

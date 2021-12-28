@@ -20,17 +20,7 @@ fun FocusSettingScreen() {
     NavBar("专注设置") {
         LazyColumn(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
             item {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Spacer(
-                        modifier = Modifier
-                            .size(4.dp, 16.dp)
-                            .clip(MaterialTheme.shapes.small)
-                            .background(color = MaterialTheme.colors.primary)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "通用", fontSize = 20.sp, fontWeight = FontWeight.Medium)
-                }
+                SettingTitle("通用")
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -46,23 +36,11 @@ fun FocusSettingScreen() {
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))
-                SettingLine("强力模式", "Focus-Setting-HardMod")
+                SettingLine("提醒时发出提示音", "Focus-Setting-TipSound")
             }
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Spacer(
-                            modifier = Modifier
-                                .size(4.dp, 16.dp)
-                                .clip(MaterialTheme.shapes.small)
-                                .background(color = MaterialTheme.colors.primary)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = "番茄工作", fontSize = 20.sp, fontWeight = FontWeight.Medium)
-                    }
-                }
+                SettingTitle("番茄工作")
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -122,6 +100,22 @@ fun TomatoTimePick() {
         }
 
     }
+}
+
+@Composable
+fun SettingTitle(title: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(
+            modifier = Modifier
+                .size(4.dp, 16.dp)
+                .clip(MaterialTheme.shapes.small)
+                .background(color = MaterialTheme.colors.primary)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(text = title, fontSize = 20.sp, fontWeight = FontWeight.Medium)
+    }
+
 }
 
 @Composable

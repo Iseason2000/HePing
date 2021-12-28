@@ -50,6 +50,7 @@ import kotlinx.coroutines.launch
 import top.iseason.heping.manager.ConfigManager
 import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.manager.hasPermission
+import top.iseason.heping.ui.theme.GreenSurface
 import top.iseason.heping.utils.Util
 import kotlin.math.roundToInt
 
@@ -258,7 +259,7 @@ fun CountButton(
         shape = MaterialTheme.shapes.large,
         colors = ButtonDefaults.textButtonColors(
             backgroundColor = if (limitTime == num) MaterialTheme.colors.primary
-            else Color(0xFFF3F6F5)
+            else GreenSurface
         ),
         modifier = Modifier.size(68.dp, 48.dp)
     ) {
