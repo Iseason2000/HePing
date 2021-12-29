@@ -38,11 +38,10 @@ import androidx.compose.ui.unit.sp
 import top.iseason.heping.R
 import top.iseason.heping.manager.ConfigManager
 import top.iseason.heping.manager.ModelManager
-import top.iseason.heping.model.AppViewModel
 import top.iseason.heping.ui.screen.controller.ScrollerPicker
 
 @Composable
-fun FocusScreen(viewModel: AppViewModel) {
+fun FocusScreen() {
     val focusManager = LocalFocusManager.current
     val mainColor = MaterialTheme.colors.primaryVariant
     val subColor = MaterialTheme.colors.background

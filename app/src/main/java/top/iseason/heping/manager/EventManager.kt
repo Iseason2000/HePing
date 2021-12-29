@@ -57,8 +57,3 @@ object EventManager {
 }
 
 fun Pair<Long, Long>.calculateTime() = this.second - this.first
-
-data class ScreenEvent(
-    val isOpening: Boolean = true,
-    val unixTime: Long
-)

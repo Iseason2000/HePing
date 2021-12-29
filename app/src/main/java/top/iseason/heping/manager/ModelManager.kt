@@ -302,13 +302,13 @@ object ModelManager {
         vibrator()
     }
 
-    fun tipSound() {
+    private fun tipSound() {
         val notification: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val r = RingtoneManager.getRingtone(getMainActivity(), notification)
         r.play()
     }
 
-    fun vibrator() {
+    private fun vibrator() {
         vibrator?.vibrate(500L)
     }
 

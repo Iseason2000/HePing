@@ -223,7 +223,7 @@ fun MyScaffold(viewModel: AppViewModel) {
                     HealthScreen(viewModel)
                 }
                 1 -> {
-                    FocusScreen(viewModel)
+                    FocusScreen()
                 }
                 2 -> {
                     MyScreen(viewModel)

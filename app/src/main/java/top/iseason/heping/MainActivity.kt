@@ -79,12 +79,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        // 这是前提——你的app至少运行了一个service。这里表示当进程不在前台时，马上开启一个service
-//        startService(Intent(this, AppService::class.java))
-    }
-
     override fun onDestroy() {
         unbindService(ModelManager.conn)
         super.onDestroy()

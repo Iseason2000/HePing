@@ -267,7 +267,7 @@ class AppService : Service() {
         var focusTime: Int = 600, //设定时间 单位秒
         var currentTime: Int = 0
     ) {
-        var timer = Timer()
+        private var timer = Timer()
         fun start(minutes: Int): Boolean {
             if (isFocusing || relaxTime.isRelaxing) return false
             currentTime = 0
@@ -336,7 +336,7 @@ class AppService : Service() {
     ) {
         var isWorking: Boolean = false
         var isRelaxing: Boolean = false
-        var timer = Timer()
+        private var timer = Timer()
         fun start(times: Int, workTime: Int, relaxTime: Int): Boolean {
             if (isCircle) return false
             if (this@AppService.focusTime.isFocusing || this@AppService.relaxTime.isRelaxing) return false
