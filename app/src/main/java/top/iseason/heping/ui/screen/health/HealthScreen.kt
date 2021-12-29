@@ -1,7 +1,6 @@
 package top.iseason.heping.ui.screen.health
 
 import android.app.AppOpsManager
-import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -91,7 +90,11 @@ fun HealthScreen(viewModel: AppViewModel) {
                     modifier = Modifier
                         .padding(top = 15.dp, end = 23.dp)
                 ) {
-                    ModelManager.getNavController().navigate("HealthSleep")
+                    if (hasPermission(AppOpsManager.OPSTR_GET_USAGE_STATS))
+                        ModelManager
+                            .getNavController()
+                            .navigate("HealthSleep") else
+                        ModelManager.showToast("你还没有开启权限,无法查看!")
                 }
             }
             item {
@@ -120,8 +123,7 @@ fun HealthScreen(viewModel: AppViewModel) {
                     modifier = Modifier
                         .padding(top = 5.dp, end = 25.dp)
                 ) {
-                    Toast.makeText(ModelManager.getMainActivity(), "功能未实现！", Toast.LENGTH_SHORT)
-                        .show()
+                    ModelManager.showToast("功能未实现")
                 }
             }
             item { Spacer(modifier = Modifier.padding(top = 64.dp)) }
@@ -142,13 +144,7 @@ fun MoreAppInfo() {
                     ModelManager
                         .getNavController()
                         .navigate("healthTotal") else
-                    Toast
-                        .makeText(
-                            ModelManager.getMainActivity(),
-                            "你还没有开启权限,无法查看!",
-                            Toast.LENGTH_SHORT
-                        )
-                        .show()
+                    ModelManager.showToast("你还没有开启权限,无法查看!")
             },
     ) {
         Row(

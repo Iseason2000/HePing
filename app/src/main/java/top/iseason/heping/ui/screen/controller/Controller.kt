@@ -3,7 +3,6 @@ package top.iseason.heping.ui.screen.controller
 import android.app.AppOpsManager
 import android.content.Intent
 import android.provider.Settings
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
@@ -231,11 +230,7 @@ fun AppLimiter(
                     Text(text = "你还没有授予悬浮窗权限，将无法启用限额功能!")
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = {
-                        Toast.makeText(
-                            ModelManager.getMainActivity(),
-                            "在设置里找到 和屏 然后开启权限!",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        ModelManager.showToast("在设置里找到 和屏 然后开启权限!")
                         ModelManager.getMainActivity()
                             .startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
                     }) {

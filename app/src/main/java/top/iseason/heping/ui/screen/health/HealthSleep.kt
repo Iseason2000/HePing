@@ -70,10 +70,11 @@ fun SleepTime() {
     ) {
         DisposableEffect(Unit) {
             onDispose {
-                ConfigManager.setLong(
-                    "Setting-SleepTime-Yesterday",
-                    sleepTimeForDays[0].getUsedTime()
-                )
+                if (sleepTimeForDays.size > 0)
+                    ConfigManager.setLong(
+                        "Setting-SleepTime-Yesterday",
+                        sleepTimeForDays[0].getUsedTime()
+                    )
             }
         }
         if (sleepTimeForDays.isNotEmpty())

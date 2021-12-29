@@ -121,7 +121,7 @@ fun TiredRecord() {
                                 onTap = {
                                     val pointAt =
                                         (it.x / (size.width - 100 * size.height / 150) * 12).toInt()
-                                    if (pointAt > 12) return@detectTapGestures
+                                    if (pointAt > eventList.size - 1) return@detectTapGestures
                                     selected = pointAt
                                     val instance = Calendar.getInstance()
                                     instance.timeInMillis = eventList[selected].first
@@ -135,11 +135,7 @@ fun TiredRecord() {
                                             Util.formatTime2(instance.get(Calendar.MINUTE))
                                         }"
                                     ModelManager.showToast(
-                                        "${first}~${second} ${
-                                            Util.longTimeFormat(
-                                                useTime[selected]
-                                            )
-                                        }"
+                                        "${first}~${second} ${Util.longTimeFormat(useTime[selected])}"
                                     )
                                 }
                             )

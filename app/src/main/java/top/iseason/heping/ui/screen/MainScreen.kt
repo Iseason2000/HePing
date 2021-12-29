@@ -135,7 +135,7 @@ fun MyScaffold(viewModel: AppViewModel) {
     LaunchedEffect(Unit) {
         systemUiController.setStatusBarColor(
             color = color,
-            darkIcons = isLight
+            darkIcons = false
         )
         val service = ModelManager.getService()
         if (service?.tomatoCircle?.isCircle == true) {
@@ -241,13 +241,12 @@ fun NavBar(
     content: @Composable (PaddingValues) -> Unit
 ) {
     val systemUiController = rememberSystemUiController()
-    val isLight = MaterialTheme.colors.isLight
     val color =
         if (MaterialTheme.colors.isLight) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.surface
     LaunchedEffect(Unit) {
         systemUiController.setStatusBarColor(
             color = color,
-            darkIcons = isLight
+            darkIcons = false
         )
     }
     Scaffold(

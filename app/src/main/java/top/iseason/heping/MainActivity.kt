@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
                 SideEffect {
                     systemUiController.setStatusBarColor(
                         color = color,
-                        darkIcons = !isDrak
+                        darkIcons = false
                     )
                     systemUiController.setNavigationBarColor(
                         color = color2,

@@ -1,6 +1,5 @@
 package top.iseason.heping.ui.screen.health
 
-import android.widget.Toast
 import androidx.compose.animation.core.FloatTweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -100,15 +99,13 @@ fun TotalBar(data: Array<Long> = Array(24) { 0L }) {
                                 val pointAt = (it.x / (size.width - 100) * 12).toInt()
                                 val l = data12[pointAt]
                                 if (l == 0L) return@detectTapGestures
-                                Toast
-                                    .makeText(
-                                        ModelManager.getMainActivity(),
-                                        "${pointAt * 2}点 - ${pointAt * 2 + 2}点 \n${
-                                            Util.longTimeFormatDetail(l)
-                                        }",
-                                        Toast.LENGTH_SHORT
-                                    )
-                                    .show()
+                                ModelManager.showToast(
+                                    "${pointAt * 2}点 - ${pointAt * 2 + 2}点 \n${
+                                        Util.longTimeFormatDetail(
+                                            l
+                                        )
+                                    }"
+                                )
                             }
                         )
                     }
