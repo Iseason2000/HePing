@@ -58,7 +58,7 @@ fun SleepTime() {
     var totalEndHour by remember { mutableStateOf(0) }
     var sizeT by remember { mutableStateOf(0) }
     val topHour = floor(totalStartHour.toFloat() / sizeT).toInt() + 1
-    val endHour = floor(totalEndHour.toFloat() / sizeT).toInt() + 1
+    val endHour = floor(totalEndHour.toFloat() / sizeT).toInt()
     var selectedDay by remember { mutableStateOf(0) }
     var isWakeUp by remember { mutableStateOf(false) }
     val ofDay = if (isWakeUp) 0 else -1
@@ -246,7 +246,7 @@ fun SleepTime() {
                                 sleepTime[i] = s.toInt()
                             }
                         }
-                        if (now.get(Calendar.HOUR_OF_DAY) > sleepTime[2] && now.get(Calendar.MINUTE) > sleepTime[3]) {
+                        if (now.get(Calendar.HOUR_OF_DAY) >= sleepTime[2] && now.get(Calendar.MINUTE) >= sleepTime[3]) {
                             isWakeUp = true
                         }
                         val pastUsage2 = pastUsage.value.toMutableList()
@@ -276,7 +276,7 @@ fun SleepTime() {
                             val hour = pair.first[1]
                             val time = pair.second
                             //一分钟阈值
-                            val threshold = 60000L
+                            val threshold = 120000L
                             if (time > threshold && useTimeList[index + 1].second <= threshold) {
                                 //开始休息
                                 sleepEventList.add(
@@ -293,11 +293,12 @@ fun SleepTime() {
                             val timeNext = next.second
                             if (threshold in time..timeNext) {
                                 //开始使用
+                                val i = timeNext.toInt() / 60000
                                 sleepEventList.add(
                                     SleepEvent(
                                         next.first[0],
                                         next.first[1],
-                                        (timeNext.toInt() / 60000),
+                                        if (i > 30) 60 - i else i,
                                         false
                                     )
                                 )
@@ -306,18 +307,22 @@ fun SleepTime() {
                         val sleepTimeForDay = mutableListOf<SleepTime>()
                         for (day in 0 until pastUsage.value.size) {
                             val today = sleepEventList.filter { it.day in day..day + 1 }
-                            val temp = mutableListOf<SleepEvent>()
-                            for (event in today) {
+                            val temp = mutableListOf<Pair<SleepEvent, SleepEvent>>()
+                            for ((index, event) in today.withIndex()) {
+                                if (index == 0) continue
                                 if (event.isSleep || event.day != day) continue
-                                //最近起床事件
-                                temp.add(event)
+                                //今日的起床事件
+                                temp.add(Pair(today[index - 1], event))
                             }
-                            //计算今天离凌晨最近的起床事件
-                            var todayWakeUp: SleepEvent = temp[0]
-                            for (sleepEvent in temp)
-                                if (sleepEvent.hour < todayWakeUp.hour) todayWakeUp = sleepEvent
-                            val todaySleep = today[today.indexOf(todayWakeUp) - 1]
-                            sleepTimeForDay.add(Pair(todaySleep, todayWakeUp))
+                            //计算休息时间最长的时间
+                            var todayWakeUp: Pair<SleepEvent, SleepEvent> = temp[0]
+                            for (sleepEvent in temp) {
+                                //3点前起床的算
+                                if (sleepEvent.second.hour < 15)
+                                    if (sleepEvent.getUsedTime() > todayWakeUp.getUsedTime())
+                                        todayWakeUp = sleepEvent
+                            }
+                            sleepTimeForDay.add(todayWakeUp)
                         }
                         sleepTimeForDays = sleepTimeForDay
                         for (sleepTime2 in sleepTimeForDays) {
