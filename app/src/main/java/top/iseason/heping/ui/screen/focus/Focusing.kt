@@ -29,6 +29,7 @@ import top.iseason.heping.R
 import top.iseason.heping.manager.ConfigManager
 import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.ui.screen.controller.ExitDialog
+import top.iseason.heping.ui.theme.GreenSurface
 import top.iseason.heping.utils.Util
 
 
@@ -96,7 +97,7 @@ fun Focusing() {
         verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colors.background)
+            .background(if (MaterialTheme.colors.isLight) GreenSurface else MaterialTheme.colors.background)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.height(135.dp))

@@ -82,11 +82,20 @@ fun MyScreen(viewModel: AppViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                SettingCard(image = R.drawable.palette_black, title = "主题风格", subTitle = "个性化色彩") {
+                SettingCard(
+                    image = R.drawable.palette_black,
+                    title = "主题风格",
+                    subTitle = "个性化色彩",
+                    modifier = Modifier.weight(1F, true)
+                ) {
                     ModelManager.getNavController().navigate("myThemeSetting")
                 }
+                Spacer(modifier = Modifier.width(16.dp))
                 SettingCard(
-                    image = R.drawable.help_outline_black, title = "使用帮助", subTitle = "快速上手应用"
+                    image = R.drawable.help_outline_black,
+                    title = "使用帮助",
+                    subTitle = "快速上手应用",
+                    modifier = Modifier.weight(1F, true)
                 ) {
                     ModelManager.getNavController().navigate("help")
                 }
@@ -101,12 +110,15 @@ fun MyScreen(viewModel: AppViewModel) {
                 SettingCard(
                     image = R.drawable.settings_black,
                     title = "高级设置",
-                    subTitle = "更多细项设定"
+                    subTitle = "更多细项设定",
+                    modifier = Modifier.weight(1F, true)
                 ) {
                     ModelManager.getNavController().navigate("mainSetting")
                 }
+                Spacer(modifier = Modifier.width(16.dp))
                 SettingCard(
-                    image = R.drawable.about, title = "关于和屏", subTitle = "联系开发者"
+                    image = R.drawable.about, title = "关于和屏", subTitle = "联系开发者",
+                    modifier = Modifier.weight(1F, true)
                 ) {
                     ModelManager.getNavController().navigate("about")
                 }
@@ -194,9 +206,15 @@ fun DayBar() {
 }
 
 @Composable
-fun SettingCard(image: Int, title: String, subTitle: String, onclick: () -> Unit) {
+fun SettingCard(
+    image: Int,
+    title: String,
+    subTitle: String,
+    modifier: Modifier = Modifier,
+    onclick: () -> Unit
+) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .size(156.dp, 100.dp)
             .clip(MaterialTheme.shapes.large)
             .clickable(onClick = onclick)

@@ -671,7 +671,7 @@ fun ExitDialog(
                                 text = "继续坚持", fontSize = 14.sp,
                                 fontWeight = FontWeight.Normal,
                                 textAlign = TextAlign.Center,
-                                color = MaterialTheme.colors.secondaryVariant
+                                color = Color.White
                             )
                         }
                     }

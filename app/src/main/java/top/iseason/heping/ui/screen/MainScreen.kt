@@ -94,7 +94,13 @@ fun MainScreen(viewModel: AppViewModel) {
         navPage("help") {
             HelpScreen()
         }
-        navPage("about") {
+        composable(route = "about", exitTransition = {
+            val offset = if (targetState.destination.route == "main") 1 else -1
+            slideOutHorizontally(targetOffsetX = { it * offset })
+        }, enterTransition = {
+            val offset = if (initialState.destination.route == "main") 1 else -1
+            slideInHorizontally(initialOffsetX = { it * offset })
+        }) {
             About()
         }
         navPage("feedBack") {

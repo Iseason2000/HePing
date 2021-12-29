@@ -389,7 +389,7 @@ class AppService : Service() {
             isCircle = false
         }
     }
-
+    fun getWindowManager() = windowManager
     companion object {
         private const val NOTIFICATION_ID = 2233
     }

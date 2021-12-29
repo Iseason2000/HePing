@@ -129,7 +129,7 @@ fun SleepTime() {
                 var start by remember { mutableStateOf(false) }
                 val heightPre by animateFloatAsState(
                     targetValue = if (start) 1f else 0f,
-                    animationSpec = FloatTweenSpec(duration = 1000)
+                    animationSpec = FloatTweenSpec(duration = 0)
                 )
                 LaunchedEffect(Unit) {
                     start = true
@@ -208,9 +208,11 @@ fun SleepTime() {
                                 )
                         }
                     }
+
                     for ((index, dayS) in sleepTimeForDays.withIndex()) {
                         val timeLength = (abs(endHour - topHour) * 3600000L).toFloat()
                         val h = dayS.getUsedTime().toFloat() / timeLength * height * heightPre
+
                         val w = actWidth / 12
                         var usedTime: Long
                         val copy = dayS.first.copy(hour = topHour, minutes = 0)
@@ -304,6 +306,9 @@ fun SleepTime() {
                                 )
                             }
                         }
+//                        for (sleepEvent in sleepEventList) {
+////                            println(sleepEvent)
+////                        }
                         val sleepTimeForDay = mutableListOf<SleepTime>()
                         for (day in 0 until pastUsage.value.size) {
                             val today = sleepEventList.filter { it.day in day..day + 1 }
@@ -346,7 +351,9 @@ fun SleepTime.getUsedTime(): Long {
     val wakeUp = this.second
     var time = 0L
     time += if (sleep.day == wakeUp.day) {
-        (wakeUp.hour - sleep.hour) * 3600000L
+        if (wakeUp.hour >= sleep.hour)
+            (wakeUp.hour - sleep.hour) * 3600000L
+        else (wakeUp.hour - sleep.hour + 24) * 3600000L
     } else {
         (wakeUp.hour + 24 - sleep.hour) * 3600000L
     }
@@ -371,7 +378,9 @@ fun SleepEvent.isBefore(other: SleepEvent): Boolean {
         return true
     }
     if (this.day < other.day) return false
-    if (this.hour < other.hour) return true
+    if (this.hour < other.hour) {
+        return true
+    } else if (this.day == other.day) return true
     if (this.minutes < other.minutes) return true
     return false
 }

@@ -52,6 +52,11 @@ object ConfigManager {
     }
 
     @JvmStatic
+    fun getFloat(key: String): Float {
+        return config?.getFloat(key, 1F) ?: 1F
+    }
+
+    @JvmStatic
     fun getInt(key: String): Int {
         return config?.getInt(key, 0) ?: 0
     }

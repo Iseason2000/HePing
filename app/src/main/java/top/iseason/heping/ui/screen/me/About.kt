@@ -60,10 +60,12 @@ fun About() {
                 val mainActivity = ModelManager.getMainActivity()
                 MessageBar(
                     "检查更新",
-                    mainActivity.packageManager.getPackageInfo(
-                        mainActivity.packageName,
-                        0
-                    ).versionName
+                    "Version ${
+                        mainActivity.packageManager.getPackageInfo(
+                            mainActivity.packageName,
+                            0
+                        ).versionName
+                    }"
                 ) {
                     ModelManager
                         .getMainActivity()
@@ -77,7 +79,7 @@ fun About() {
             item {
                 MessageBar("用户协议") {
                     title = "用户协议"
-                    text = "本软件开源(GPL-3.0)且完全免费，请勿用于商业通途!"
+                    text = "本软件开源(GPL-3.0)且完全免费，请勿将本软件打包用于商业通途!"
                     isAlert = true
                 }
                 Spacer(modifier = Modifier.height(16.dp))

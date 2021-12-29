@@ -71,8 +71,9 @@ fun FocusScreen(viewModel: AppViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TomatoCard()
-                FocusSetting()
+                TomatoCard(Modifier.weight(0.45F, true))
+                Spacer(modifier = Modifier.width(16.dp))
+                FocusSetting(Modifier.weight(0.45F, true))
             }
         }
         item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -129,9 +130,9 @@ fun AboutTomato() {
 }
 
 @Composable
-fun FocusSetting() {
+fun FocusSetting(modifier: Modifier = Modifier) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .defaultMinSize(minWidth = 156.dp)
             .height(88.dp)
             .clip(MaterialTheme.shapes.large)
@@ -173,11 +174,11 @@ fun FocusSetting() {
 
 
 @Composable
-fun TomatoCard() {
+fun TomatoCard(modifier: Modifier = Modifier) {
     var isEditing by remember { mutableStateOf(false) }
     var count by remember { mutableStateOf(1) }
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .defaultMinSize(minWidth = 156.dp)
             .height(88.dp)
             .clip(MaterialTheme.shapes.large)

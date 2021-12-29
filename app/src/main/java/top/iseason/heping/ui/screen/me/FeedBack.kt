@@ -67,7 +67,7 @@ fun FeedBack() {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    MyInfo(R.drawable.github_fill, Color.Black) {
+                    MyInfo(R.drawable.github_fill, Color.Black, Modifier.weight(1F, true)) {
                         ModelManager
                             .getMainActivity()
                             .startActivity(Intent(Intent.ACTION_VIEW).apply {
@@ -75,7 +75,8 @@ fun FeedBack() {
                                     Uri.parse("https://github.com/Iseason2000")
                             })
                     }
-                    MyInfo(R.drawable.bilibili_line, Color(0XFF02b5da)) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    MyInfo(R.drawable.bilibili_line, Color(0XFF02b5da), Modifier.weight(1F, true)) {
                         ModelManager
                             .getMainActivity()
                             .startActivity(Intent(Intent.ACTION_VIEW).apply {
@@ -92,7 +93,7 @@ fun FeedBack() {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    MyInfo(R.drawable.blog, Color(0XFFFF8800)) {
+                    MyInfo(R.drawable.blog, Color(0XFFFF8800), Modifier.weight(1F, true)) {
                         ModelManager
                             .getMainActivity()
                             .startActivity(Intent(Intent.ACTION_VIEW).apply {
@@ -100,14 +101,18 @@ fun FeedBack() {
                                     Uri.parse("https://www.iseason.top/")
                             })
                     }
+                    Spacer(modifier = Modifier.width(16.dp))
                     Surface(
                         modifier = Modifier
-                            .size(156.dp, 100.dp)
+                            .defaultMinSize(156.dp, 100.dp)
+                            .height(100.dp)
                             .clip(MaterialTheme.shapes.large)
+                            .weight(1F, true)
                     ) {
                         SelectionContainer {
                             Column(
-                                modifier = Modifier.padding(all = 16.dp),
+                                modifier = Modifier
+                                    .padding(all = 16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Icon(
@@ -147,10 +152,11 @@ fun FeedBack() {
 }
 
 @Composable
-fun MyInfo(icon: Int, color: Color, onClick: () -> Unit) {
+fun MyInfo(icon: Int, color: Color, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Surface(
-        modifier = Modifier
-            .size(156.dp, 100.dp)
+        modifier = modifier
+            .defaultMinSize(156.dp)
+            .height(100.dp)
             .clip(MaterialTheme.shapes.large)
             .clickable(onClick = onClick)
     ) {

@@ -1,6 +1,7 @@
 package top.iseason.heping.manager
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Handler
@@ -40,6 +41,11 @@ class FloatWindowManager {
         time = rootView?.findViewById(R.id.time)
         tip = rootView?.findViewById(R.id.tip)
         isInit = true
+        val string = ConfigManager.getString("Main-Setting-Caption-Color")
+        val float = ConfigManager.getFloat("Main-Setting-Caption-Alpha")
+        if (string != null) {
+            setColor(string, float)
+        }
     }
 
     fun showWindow() {
@@ -62,6 +68,26 @@ class FloatWindowManager {
             this.time?.text = time
             this.tip?.text = tip
         }
+    }
+
+    fun getColor(): String? {
+        if (title == null) return null
+        return "#${Integer.toHexString(title!!.currentTextColor).substring(2)}"
+    }
+
+    fun getAlpha(): Float {
+        if (title == null) return 1.0F
+        return title!!.alpha
+    }
+
+    fun setColor(hex: String, alpha: Float) {
+        val color = Color.parseColor(hex)
+        title?.setTextColor(color)
+        title?.alpha = alpha
+        time?.setTextColor(color)
+        time?.alpha = alpha
+        tip?.setTextColor(color)
+        tip?.alpha = alpha
     }
 
     fun hideWindow() {
