@@ -61,7 +61,7 @@ fun FeedBack() {
                 SelectionContainer {
                     TextCard(
                         "制作人员",
-                        "界面设计: @Wayne (huguangweichn@foxmail.com) \n开发: \n@Iseason (Iseason2000@outlook.com)"
+                        "界面设计: \n@Wayne (huguangweichn@foxmail.com) \n开发: \n@Iseason (Iseason2000@outlook.com)"
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))

@@ -122,7 +122,7 @@ class AppService : Service() {
             //0..23
             val fistHour = split[0].toInt()
             val fistMinute = split[1].toInt()
-            var lastHour = split[2].toInt()
+            val lastHour = split[2].toInt()
             val lastMinute = split[3].toInt()
             val current = Calendar.getInstance()
             val nowHour = current.get(Calendar.HOUR_OF_DAY)
