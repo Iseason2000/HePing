@@ -215,7 +215,6 @@ fun SettingCard(
 ) {
     Surface(
         modifier = modifier
-            .size(156.dp, 100.dp)
             .clip(MaterialTheme.shapes.large)
             .clickable(onClick = onclick)
     ) {

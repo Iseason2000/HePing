@@ -160,8 +160,6 @@ fun FeedBack() {
 fun MyInfo(icon: Int, color: Color, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Surface(
         modifier = modifier
-            .defaultMinSize(156.dp)
-            .height(100.dp)
             .clip(MaterialTheme.shapes.large)
             .clickable(onClick = onClick)
     ) {
@@ -171,7 +169,12 @@ fun MyInfo(icon: Int, color: Color, modifier: Modifier = Modifier, onClick: () -
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            Icon(painter = painterResource(id = icon), contentDescription = null, tint = color)
+            Icon(
+                painter = painterResource(id = icon),
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(68.dp)
+            )
         }
     }
 }
