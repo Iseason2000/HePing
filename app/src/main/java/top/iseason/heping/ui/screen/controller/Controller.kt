@@ -485,7 +485,7 @@ fun TimeScrollerPart(
         state = listState,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .size(24.dp, 81.dp)
+            .size(30.dp, 81.dp)
             .disabledVerticalPointerInputScroll(!isOpen)
     ) {
         item { TimeTextScroller(0, target, isOpen, timeFormatter) }
@@ -507,7 +507,7 @@ fun TimeTextScroller(
 ) {
     Box(
         modifier = modifier
-            .size(24.dp, 29.dp), contentAlignment = Alignment.Center
+            .size(30.dp, 29.dp), contentAlignment = Alignment.Center
     ) {
         if (time == currentTime)
             TimeText(time, isOn, timeFormatter)

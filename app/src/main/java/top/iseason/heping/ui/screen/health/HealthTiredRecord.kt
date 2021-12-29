@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import top.iseason.heping.manager.EventManager
+import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.manager.calculateTime
 import top.iseason.heping.ui.screen.NavBar
 import top.iseason.heping.ui.screen.controller.AppLimiter
@@ -122,6 +123,24 @@ fun TiredRecord() {
                                         (it.x / (size.width - 100 * size.height / 150) * 12).toInt()
                                     if (pointAt > 12) return@detectTapGestures
                                     selected = pointAt
+                                    val instance = Calendar.getInstance()
+                                    instance.timeInMillis = eventList[selected].first
+                                    val first =
+                                        "${Util.formatTime2(instance.get(Calendar.HOUR_OF_DAY))}:${
+                                            Util.formatTime2(instance.get(Calendar.MINUTE))
+                                        }"
+                                    instance.timeInMillis = eventList[selected].second
+                                    val second =
+                                        "${Util.formatTime2(instance.get(Calendar.HOUR_OF_DAY))}:${
+                                            Util.formatTime2(instance.get(Calendar.MINUTE))
+                                        }"
+                                    ModelManager.showToast(
+                                        "${first}~${second} ${
+                                            Util.longTimeFormat(
+                                                useTime[selected]
+                                            )
+                                        }"
+                                    )
                                 }
                             )
                         }

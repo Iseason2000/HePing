@@ -28,6 +28,7 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.flow.collect
 import top.iseason.heping.R
 import top.iseason.heping.manager.ModelManager
@@ -127,7 +128,15 @@ fun MyScaffold(viewModel: AppViewModel) {
     var selectedItem by remember { mutableStateOf(viewModel.initPage) }
     val pagerState = rememberPagerState()
     val items = listOf("健康", "专注", "我的")
+    val systemUiController = rememberSystemUiController()
+    val isLight = MaterialTheme.colors.isLight
+    val color =
+        if (isLight) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.background
     LaunchedEffect(Unit) {
+        systemUiController.setStatusBarColor(
+            color = color,
+            darkIcons = isLight
+        )
         val service = ModelManager.getService()
         if (service?.tomatoCircle?.isCircle == true) {
             ModelManager.getNavController().navigate("focusTomato")
@@ -161,7 +170,7 @@ fun MyScaffold(viewModel: AppViewModel) {
         },
         bottomBar = {
             BottomNavigation(
-                backgroundColor = MaterialTheme.colors.background
+                backgroundColor = if (MaterialTheme.colors.isLight) MaterialTheme.colors.background else MaterialTheme.colors.surface
             ) {
                 items.forEachIndexed { index, item ->
                     BottomNavigationItem(
@@ -231,13 +240,23 @@ fun NavBar(
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit
 ) {
+    val systemUiController = rememberSystemUiController()
+    val isLight = MaterialTheme.colors.isLight
+    val color =
+        if (MaterialTheme.colors.isLight) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.surface
+    LaunchedEffect(Unit) {
+        systemUiController.setStatusBarColor(
+            color = color,
+            darkIcons = isLight
+        )
+    }
     Scaffold(
         topBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .background(if (MaterialTheme.colors.isLight) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.background)
+                    .background(if (MaterialTheme.colors.isLight) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.surface)
                     .padding(start = 22.dp)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },

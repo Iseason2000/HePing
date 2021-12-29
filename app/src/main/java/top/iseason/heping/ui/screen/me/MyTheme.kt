@@ -56,21 +56,27 @@ fun MyTheme(viewModel: AppViewModel) {
                     GreenSecondary,
                     Color.White,
                     selected == 1,
-                    modifier = Modifier.clickable {
-                        selected = 1
-                        ConfigManager.setBoolean("MyTheme-AutoSwitch", false)
-                        ConfigManager.setInt("MyTheme-Mode", 1)
-                    })
+                    modifier = Modifier
+                        .clickable {
+                            selected = 1
+                            ConfigManager.setBoolean("MyTheme-AutoSwitch", false)
+                            ConfigManager.setInt("MyTheme-Mode", 1)
+                        }
+                        .weight(1F, true)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
                 ThemeCard(
                     "深色",
                     GreenPrimary,
                     Color(0XFF12231E),
                     selected == 2,
-                    modifier = Modifier.clickable {
-                        selected = 2
-                        ConfigManager.setBoolean("MyTheme-AutoSwitch", false)
-                        ConfigManager.setInt("MyTheme-Mode", 2)
-                    })
+                    modifier = Modifier
+                        .clickable {
+                            selected = 2
+                            ConfigManager.setBoolean("MyTheme-AutoSwitch", false)
+                            ConfigManager.setInt("MyTheme-Mode", 2)
+                        }
+                        .weight(1F, true))
             }
             Spacer(modifier = Modifier.height(16.dp))
             SettingLine(title = "深浅主题跟随系统设置", key = "MyTheme-AutoSwitch")

@@ -58,7 +58,10 @@ fun FeedBack() {
                 Spacer(modifier = Modifier.height(16.dp))
             }
             item {
-                TextCard("制作人员", "界面设计: @Wayne(1823238362) \n开发: @Iseason(1347811744)")
+                TextCard(
+                    "制作人员",
+                    "界面设计: @Wayne(huguangweichn@foxmail.com) \n开发: @Iseason(Iseason2000@outlook.com)"
+                )
                 Spacer(modifier = Modifier.height(16.dp))
             }
             item {

@@ -14,6 +14,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import top.iseason.heping.manager.AppService
@@ -61,9 +62,15 @@ class MainActivity : ComponentActivity() {
                 val systemUiController = rememberSystemUiController()
                 val color =
                     if (!isDrak) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.background
+                val color2 =
+                    if (!isDrak) Color.White else Color(0XFF465250)
                 SideEffect {
-                    systemUiController.setSystemBarsColor(
+                    systemUiController.setStatusBarColor(
                         color = color,
+                        darkIcons = !isDrak
+                    )
+                    systemUiController.setNavigationBarColor(
+                        color = color2,
                         darkIcons = !isDrak
                     )
                 }
