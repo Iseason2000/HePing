@@ -119,26 +119,41 @@ class AppService : Service() {
                 continue
             }
             val split = timeSet.split(',')
+            //0..23
             val fistHour = split[0].toInt()
             val fistMinute = split[1].toInt()
             var lastHour = split[2].toInt()
             val lastMinute = split[3].toInt()
-            val sleepTimeStart = Calendar.getInstance().apply {
-                if (fistHour >= 12 && fistHour > lastHour && lastHour > 0) {
-                    set(Calendar.DATE, -1)
-                }
-                set(Calendar.HOUR_OF_DAY, fistHour)
-                set(Calendar.MINUTE, fistMinute)
-                set(Calendar.SECOND, 0)
-            }
-            val sleepTimeEnd = Calendar.getInstance().apply {
-                if (lastHour == 0) lastHour = 24
-                set(Calendar.HOUR_OF_DAY, lastHour)
-                set(Calendar.MINUTE, lastMinute)
-                set(Calendar.SECOND, 0)
-            }
             val current = Calendar.getInstance()
-            if (current.timeInMillis in sleepTimeStart.timeInMillis..sleepTimeEnd.timeInMillis) {
+            val nowHour = current.get(Calendar.HOUR_OF_DAY)
+            val nowMinute = current.get(Calendar.MINUTE)
+            var isSleepTime = false
+            if (lastHour >= fistHour) {
+                //在同一天
+                if (nowHour in fistHour..lastHour) {
+                    val sleepTimeStart = Calendar.getInstance().apply {
+                        set(Calendar.HOUR_OF_DAY, fistHour)
+                        set(Calendar.MINUTE, fistMinute)
+                        set(Calendar.SECOND, 0)
+                    }
+                    val sleepTimeEnd = Calendar.getInstance().apply {
+                        set(Calendar.HOUR_OF_DAY, lastHour)
+                        set(Calendar.MINUTE, lastMinute)
+                        set(Calendar.SECOND, 0)
+                    }
+                    if (current.timeInMillis in sleepTimeStart.timeInMillis..sleepTimeEnd.timeInMillis)
+                        isSleepTime = true
+                }
+            } else {
+                //不在同一天,但现在位于教前的一天的睡眠时间之后
+                if (nowHour > fistHour || (nowHour == fistHour && nowMinute >= fistMinute)) {
+                    isSleepTime = true
+                } else if (nowHour in 0 until lastHour || (nowHour == lastHour && nowMinute < lastMinute)) {
+                    //现在位于后一天的睡觉时间内
+                    isSleepTime = true
+                }
+            }
+            if (isSleepTime) {
                 windowManager.setText(
                     "已经深夜",
                     Util.longTimeFormatDetail2(current.timeInMillis - Util.getDate(0).timeInMillis),
@@ -389,7 +404,9 @@ class AppService : Service() {
             isCircle = false
         }
     }
+
     fun getWindowManager() = windowManager
+
     companion object {
         private const val NOTIFICATION_ID = 2233
     }
