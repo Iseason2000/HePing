@@ -18,7 +18,12 @@ object ConfigManager {
         if (!hasKey("MyTheme-AutoSwitch")) {
             setBoolean("MyTheme-AutoSwitch", true)
         }
-
+        if (!hasKey("Focus-Setting-Tomato-FocusTime")) {
+            setInt("Focus-Setting-Tomato-FocusTime", 25)
+        }
+        if (!hasKey("Focus-Setting-Tomato-ReleaseTime")) {
+            setInt("Focus-Setting-Tomato-ReleaseTime", 5)
+        }
     }
 
     @JvmStatic

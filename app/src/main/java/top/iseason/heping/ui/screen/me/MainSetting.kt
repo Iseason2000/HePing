@@ -75,7 +75,7 @@ fun MainSetting() {
                             .fillMaxWidth()
                             .padding(vertical = 12.dp, horizontal = 16.dp)
                     ) {
-                        Text(text = "字符样式", fontSize = 16.sp, fontWeight = FontWeight.Normal)
+                        Text(text = "字幕样式", fontSize = 16.sp, fontWeight = FontWeight.Normal)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 Icons.Filled.ArrowForwardIos,

@@ -34,8 +34,9 @@ import top.iseason.heping.utils.Util
 fun FocusTomato() {
     val systemUiController = rememberSystemUiController()
     val isLight = MaterialTheme.colors.isLight
-    val color = MaterialTheme.colors.background
-    val color2 = MaterialTheme.colors.primaryVariant
+    val color = if (isLight) GreenSurface else MaterialTheme.colors.background
+    val color2 =
+        if (isLight) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.background
     var isFocusing by remember { mutableStateOf(true) }
     var isRelaxing by remember { mutableStateOf(true) }
     var isCircle by remember { mutableStateOf(true) }
@@ -60,16 +61,16 @@ fun FocusTomato() {
         }
     }
     LaunchedEffect(Unit) {
-        systemUiController.setSystemBarsColor(
+        systemUiController.setStatusBarColor(
             color = color,
             darkIcons = isLight
         )
     }
     DisposableEffect(Unit) {
         onDispose {
-            systemUiController.setSystemBarsColor(
+            systemUiController.setStatusBarColor(
                 color = color2,
-                darkIcons = !isLight
+                darkIcons = false
             )
         }
     }

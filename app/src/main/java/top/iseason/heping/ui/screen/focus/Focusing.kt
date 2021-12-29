@@ -60,7 +60,7 @@ fun Focusing() {
         onDispose {
             systemUiController.setStatusBarColor(
                 color = color2,
-                darkIcons = !isLight
+                darkIcons = false
             )
         }
     }

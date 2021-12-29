@@ -1,5 +1,6 @@
 package top.iseason.heping.ui.screen.focus
 
+import android.app.AppOpsManager
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import top.iseason.heping.R
 import top.iseason.heping.manager.ConfigManager
 import top.iseason.heping.manager.ModelManager
+import top.iseason.heping.manager.hasPermission
 import top.iseason.heping.ui.screen.controller.ScrollerPicker
 
 @Composable
@@ -248,14 +250,16 @@ fun TomatoCard(modifier: Modifier = Modifier) {
                         if (int == 0) return@TextButton
                         val int1 = ConfigManager.getInt("Focus-Setting-Tomato-ReleaseTime")
                         if (int == 0) return@TextButton
-                        if (!tomatoCircle.start(count, int * 60, int1 * 60)) {
-                            Toast.makeText(
-                                ModelManager.getMainActivity(),
-                                "当前有其他任务正在运行!",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        if (hasPermission(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW)) {
+                            if (!tomatoCircle.start(count, int * 60, int1 * 60)) {
+                                ModelManager.showToast("当前有其他任务正在运行!")
+                            } else {
+                                if (hasPermission(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW))
+                                    ModelManager.getNavController().navigate("focusTomato")
+                            }
                         } else {
-                            ModelManager.getNavController().navigate("focusTomato")
+                            ModelManager.openSuspendedWindowPermission()
+                            ModelManager.showToast("想要使用番茄循环，必须开启悬浮窗权限!")
                         }
                     },
                     modifier = Modifier
@@ -363,15 +367,20 @@ fun EditButton(id: Int, defaultValue: Int = 0) {
         TextButton(
             onClick = {
                 if (!isEditing && minutes > 0) {
-                    if (ModelManager.getService()?.focusTime?.start(minutes * 60) == false) {
-                        Toast.makeText(
-                            ModelManager.getMainActivity(),
-                            "当前有其他任务正在运行!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return@TextButton
+                    if (hasPermission(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW)) {
+                        if (ModelManager.getService()?.focusTime?.start(minutes * 60) == false) {
+                            Toast.makeText(
+                                ModelManager.getMainActivity(),
+                                "当前有其他任务正在运行!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@TextButton
+                        }
+                        ModelManager.getNavController().navigate("focusing")
+                    } else {
+                        ModelManager.openSuspendedWindowPermission()
+                        ModelManager.showToast("想要使用快速专注，必须开启悬浮窗权限!")
                     }
-                    ModelManager.getNavController().navigate("focusing")
                 }
             },
             shape = MaterialTheme.shapes.medium,
