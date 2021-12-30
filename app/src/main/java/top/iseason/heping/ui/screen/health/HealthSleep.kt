@@ -57,8 +57,8 @@ fun SleepTime() {
     var totalStartHour by remember { mutableStateOf(0) }
     var totalEndHour by remember { mutableStateOf(0) }
     var sizeT by remember { mutableStateOf(0) }
-    val topHour = floor(totalStartHour.toFloat() / sizeT).toInt() + 1
-    val endHour = floor(totalEndHour.toFloat() / sizeT).toInt()
+    val startHour = (floor(totalStartHour.toFloat() / sizeT).toInt()) % 24
+    val endHour = (floor(totalEndHour.toFloat() / sizeT).toInt() + 1) % 24
     var selectedDay by remember { mutableStateOf(0) }
     var isWakeUp by remember { mutableStateOf(false) }
     val ofDay = if (isWakeUp) 0 else -1
@@ -173,7 +173,7 @@ fun SleepTime() {
                         pathEffect = pe
                     )
                     drawIntoCanvas {
-                        val top = "${Util.toHour(topHour)}:00"
+                        val top = "${Util.toHour(startHour)}:00"
                         val end = "${Util.toHour(endHour)}:00"
                         it.nativeCanvas.drawText(
                             top,
@@ -209,14 +209,14 @@ fun SleepTime() {
                                 )
                         }
                     }
-
+                    val timeLength =
+                        if (endHour > startHour) (abs(endHour - startHour) * 3600000L).toFloat()
+                        else (abs(endHour + 24 - startHour) * 3600000L).toFloat()
                     for ((index, dayS) in sleepTimeForDays.withIndex()) {
-                        val timeLength = (abs(endHour - topHour) * 3600000L).toFloat()
                         val h = dayS.getUsedTime().toFloat() / timeLength * height * heightPre
-
                         val w = actWidth / 12
                         var usedTime: Long
-                        val copy = dayS.first.copy(hour = topHour, minutes = 0)
+                        val copy = dayS.first.copy(hour = startHour, minutes = 0)
                         usedTime = if (dayS.first.isBefore(copy)) {
                             -Pair(dayS.first, copy).getUsedTime()
                         } else {
@@ -332,11 +332,10 @@ fun SleepTime() {
                         }
                         sleepTimeForDays = sleepTimeForDay
                         for (sleepTime2 in sleepTimeForDays) {
-                            totalStartHour += if (sleepTime2.first.hour >= 12) {
-                                (24 - sleepTime2.first.hour)
-                            } else
-                                sleepTime2.first.hour
-                            totalEndHour += sleepTime2.second.hour
+                            val first = sleepTime2.first
+                            val second = sleepTime2.second
+                            totalStartHour += if (first.hour <= 12) first.hour + 24 else first.hour
+                            totalEndHour += if (second.hour <= 12) second.hour + 24 else second.hour
                         }
                         sizeT = sleepTimeForDays.size
                     }
