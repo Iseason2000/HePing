@@ -216,16 +216,28 @@ fun SleepTime() {
                         val h = dayS.getUsedTime().toFloat() / timeLength * height * heightPre
                         val w = actWidth / 12
                         var usedTime: Long
-                        val copy = dayS.first.copy(hour = startHour, minutes = 0)
-                        usedTime = if (dayS.first.isBefore(copy)) {
-                            -Pair(dayS.first, copy).getUsedTime()
-                        } else {
-                            Pair(copy, dayS.first).getUsedTime()
+                        val first = dayS.first
+                        var copy = dayS.first.copy(hour = startHour, minutes = 0)
+                        //平均0点前睡觉和现在0点后
+                        if (startHour > 12 && first.hour < 12) {
+                            copy =
+                                dayS.first.copy(hour = startHour, minutes = 0, day = first.day + 1)
                         }
+                        //平均0点后睡觉和现在0点前
+                        if (startHour < 12 && first.hour > 12) {
+                            copy =
+                                dayS.first.copy(hour = startHour, minutes = 0, day = first.day - 1)
+                        }
+                        usedTime = if (dayS.first.isBefore(copy)) {
+                            abs(Pair(dayS.first, copy).getUsedTime())
+                        } else {
+                            -abs(Pair(copy, dayS.first).getUsedTime())
+                        }
+//                        println("${dayS.first.day} ${dayS.first.hour} ${dayS.first.minutes} -> ${copy.day} ${copy.hour} ${copy.minutes} ${dayS.first.isBefore(copy)}")
                         val offset = usedTime / timeLength * height
                         drawRoundRect(
                             color = if (selectedDay == index) primaryColor else secondaryVariant,
-                            topLeft = Offset(actWidth - w * index * 2, height - h - offset),
+                            topLeft = Offset(actWidth - w * index * 2, height - h + offset),
                             size = Size(w, h),
                             cornerRadius = CornerRadius(8F)
                         )
@@ -307,9 +319,6 @@ fun SleepTime() {
                                 )
                             }
                         }
-//                        for (sleepEvent in sleepEventList) {
-////                            println(sleepEvent)
-////                        }
                         val sleepTimeForDay = mutableListOf<SleepTime>()
                         for (day in 0 until pastUsage.value.size) {
                             val today = sleepEventList.filter { it.day in day..day + 1 }
@@ -363,6 +372,7 @@ fun SleepTime.getUsedTime(): Long {
         time += (wakeUp.minutes + 60 - sleep.minutes) * 60000L
         time -= 3600000L
     }
+//    println("${sleep.day} ${sleep.hour} ${sleep.minutes} ${wakeUp.day} ${wakeUp.hour} ${wakeUp.minutes}$time")
     return time
 }
 
@@ -374,13 +384,15 @@ data class SleepEvent(
 )
 
 fun SleepEvent.isBefore(other: SleepEvent): Boolean {
+//    println("${this.day} ${this.hour} ${this.minutes} ${other.day} ${other.hour} ${other.minutes}")
     if (this.day > other.day) {
         return true
     }
     if (this.day < other.day) return false
     if (this.hour < other.hour) {
         return true
-    } else if (this.day == other.day) return true
+    }
+    if (this.hour > other.hour) return false
     if (this.minutes < other.minutes) return true
     return false
 }
