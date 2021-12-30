@@ -366,6 +366,8 @@ class AppService : Service() {
 //                        println("循环结束")
                         return
                     }
+                    println(isWorking)
+                    println(isRelaxing)
                     if (!isWorking && !isRelaxing) {
                         if (!this@AppService.focusTime.start(workTime)) {
                             stop()
@@ -398,9 +400,11 @@ class AppService : Service() {
         }
 
         fun stop() {
+            timer.cancel()
             focusTime.stop()
             relaxTime.stop()
-            timer.cancel()
+            isWorking = false
+            isRelaxing = false
             isCircle = false
         }
     }

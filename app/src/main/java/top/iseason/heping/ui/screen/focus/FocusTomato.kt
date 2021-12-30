@@ -105,6 +105,7 @@ fun FocusTomato() {
     }
     LaunchedEffect(isExit) {
         if (isExit) {
+            isCircle = false
             ModelManager.getService()?.tomatoCircle?.stop()
             ModelManager.getNavController().popBackStack()
         }
@@ -130,7 +131,7 @@ fun FocusTomato() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.height(135.dp))
             Text(
-                text = if (!isCircle) "专注已完成" else if (isFocusing) "专注中" else "休息中",
+                text = if (!isCircle) "专注已完成" else if (isFocusing) "专注中" else if (isRelaxing) "休息中" else "专注已完成",
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -218,7 +219,7 @@ fun FocusTomato() {
                 ) {
                     isPreExit = true
                     if (!isCircle) {
-                        ModelManager.getService()?.focusTime?.stop()
+                        ModelManager.getService()?.tomatoCircle?.stop()
                         ModelManager.getNavController().popBackStack()
                     }
                 }) {
