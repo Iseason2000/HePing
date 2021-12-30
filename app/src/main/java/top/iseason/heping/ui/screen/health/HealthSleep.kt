@@ -146,6 +146,7 @@ fun SleepTime() {
                                     val pointAt =
                                         (it.x / (size.width - 100 * size.height / 150) * 6).toInt()
                                     if (pointAt > 6) return@detectTapGestures
+                                    if (6 - pointAt > sleepTimeForDays.size - 1) return@detectTapGestures
                                     selectedDay = 6 - pointAt
                                 }
                             )
@@ -359,13 +360,10 @@ fun SleepTime.getUsedTime(): Long {
     val sleep = this.first
     val wakeUp = this.second
     var time = 0L
-    time += if (sleep.day == wakeUp.day) {
-        if (wakeUp.hour >= sleep.hour)
-            (wakeUp.hour - sleep.hour) * 3600000L
-        else (wakeUp.hour - sleep.hour + 24) * 3600000L
-    } else {
-        (wakeUp.hour + 24 - sleep.hour) * 3600000L
-    }
+    if (wakeUp.hour > sleep.hour)
+        time += (wakeUp.hour - sleep.hour) * 3600000L
+    else
+        if (wakeUp.hour < sleep.hour) time += (wakeUp.hour - sleep.hour + 24) * 3600000L
     if (wakeUp.minutes >= sleep.minutes) {
         time += (wakeUp.minutes - sleep.minutes) * 60000L
     } else {
