@@ -360,10 +360,11 @@ fun SleepTime.getUsedTime(): Long {
     val sleep = this.first
     val wakeUp = this.second
     var time = 0L
-    if (wakeUp.hour > sleep.hour)
-        time += (wakeUp.hour - sleep.hour) * 3600000L
-    else
-        if (wakeUp.hour < sleep.hour) time += (wakeUp.hour - sleep.hour + 24) * 3600000L
+    time += (wakeUp.hour + 24 - sleep.hour) % 24 * 3600000L
+//    if (wakeUp.hour > sleep.hour)
+//        time += (wakeUp.hour - sleep.hour) * 3600000L
+//    else
+//        if (wakeUp.hour < sleep.hour) time += (wakeUp.hour - sleep.hour + 24) * 3600000L
     if (wakeUp.minutes >= sleep.minutes) {
         time += (wakeUp.minutes - sleep.minutes) * 60000L
     } else {
