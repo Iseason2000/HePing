@@ -8,6 +8,9 @@
 #### 环境要求
 安卓版本6.0及以上
 
+#### 其他
+软件也发布到吾爱破解：Iseasonon (UID: 1693053)
+
 #### 使用说明
 
 ![输入图片说明](https://images.gitee.com/uploads/images/2021/1229/234600_cf0fa5cb_9942774.png "屏幕截图.png")
