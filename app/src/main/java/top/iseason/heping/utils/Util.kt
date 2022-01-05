@@ -45,6 +45,14 @@ object Util {
     }
 
     @JvmStatic
+    fun longTimeFormatDetail3(time: Long): String {
+        val hours = (time / 3600000).toInt()
+        val minutes = ((time - hours * 3600000) / 60000).toInt()
+        val second = ((time - hours * 3600000 - minutes * 60000) / 1000).toInt()
+        return "${formatTime2(hours)}:${formatTime2(minutes)}:${formatTime2(second)}"
+    }
+
+    @JvmStatic
     fun getDate(day: Int): Calendar = Calendar.getInstance().apply {
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)

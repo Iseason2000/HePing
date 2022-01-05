@@ -113,19 +113,19 @@ fun HealthScreen(viewModel: AppViewModel) {
                 }
 
             }
-            item {
-                MessageCard(
-                    title = "久坐检测",
-                    subTitle = "今天检测到久坐",
-                    time = "3次",
-                    message = "未启用久坐提醒",
-                    drawable = R.drawable.chair,
-                    modifier = Modifier
-                        .padding(top = 5.dp, end = 25.dp)
-                ) {
-                    ModelManager.showToast("功能未实现")
-                }
-            }
+//            item {
+//                MessageCard(
+//                    title = "久坐检测",
+//                    subTitle = "今天检测到久坐",
+//                    time = "3次",
+//                    message = "未启用久坐提醒",
+//                    drawable = R.drawable.chair,
+//                    modifier = Modifier
+//                        .padding(top = 5.dp, end = 25.dp)
+//                ) {
+//                    ModelManager.showToast("功能未实现")
+//                }
+//            }
             item { Spacer(modifier = Modifier.padding(top = 64.dp)) }
         }
     }

@@ -104,9 +104,9 @@ fun MainScreen(viewModel: AppViewModel) {
         }) {
             About()
         }
-        navPage("feedBack") {
-            FeedBack()
-        }
+//        navPage("feedBack") {
+//            FeedBack()
+//        }
     }
 }
 

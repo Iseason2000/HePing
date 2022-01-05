@@ -156,7 +156,7 @@ class AppService : Service() {
             if (isSleepTime) {
                 windowManager.setText(
                     "已经深夜",
-                    Util.longTimeFormatDetail2(current.timeInMillis - Util.getDate(0).timeInMillis),
+                    Util.longTimeFormatDetail3(current.timeInMillis - Util.getDate(0).timeInMillis),
                     "早点放下手机睡觉吧~"
                 )
                 isNightLimit = true

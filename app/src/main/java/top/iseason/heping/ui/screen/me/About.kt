@@ -94,7 +94,7 @@ fun About() {
             }
             item {
                 MessageBar("反馈问题") {
-                    ModelManager.getNavController().navigate("feedBack")
+//                    ModelManager.getNavController().navigate("feedBack")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
