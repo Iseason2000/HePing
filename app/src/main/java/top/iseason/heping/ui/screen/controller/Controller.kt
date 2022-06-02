@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import top.iseason.heping.manager.ConfigManager
 import top.iseason.heping.manager.ModelManager
@@ -103,7 +102,7 @@ fun AppLimiter(
                     limitTime = (offsetX / 220 * maxValue).toInt()
                     CountButton("关闭", limitTime, 0) {
                         limitTime = 0
-                        offsetX = limitTime.toFloat() / maxValue * 220
+                        offsetX = 0F
                     }
                     CountButton(value1.toString(), limitTime, value1) {
                         limitTime = value1

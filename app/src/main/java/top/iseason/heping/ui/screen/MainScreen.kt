@@ -1,5 +1,6 @@
 package top.iseason.heping.ui.screen
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInHorizontally
@@ -29,7 +30,6 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.flow.collect
 import top.iseason.heping.R
 import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.model.AppViewModel
@@ -122,6 +122,7 @@ fun NavGraphBuilder.navPage(
     }, content = content)
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun MyScaffold(viewModel: AppViewModel) {
@@ -178,10 +179,10 @@ fun MyScaffold(viewModel: AppViewModel) {
                             Image(
                                 painterResource(
                                     when (index) {
-                                        0 -> if (pagerState.targetPage == index)
+                                        0 -> if (pagerState.targetPage == 0)
                                             R.drawable.icon_health_select else
                                             R.drawable.icon_health
-                                        1 -> if (pagerState.targetPage == index)
+                                        1 -> if (pagerState.targetPage == 1)
                                             R.drawable.icon_focus_select else
                                             R.drawable.icon_focus
                                         else -> if (pagerState.targetPage == index)
@@ -216,8 +217,7 @@ fun MyScaffold(viewModel: AppViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colors.background)
-        )
-        { page: Int ->
+        ) { page: Int ->
             when (page) {
                 0 -> {
                     HealthScreen(viewModel)

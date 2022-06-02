@@ -249,7 +249,7 @@ fun TomatoCard(modifier: Modifier = Modifier) {
                         val int = ConfigManager.getInt("Focus-Setting-Tomato-FocusTime")
                         if (int == 0) return@TextButton
                         val int1 = ConfigManager.getInt("Focus-Setting-Tomato-ReleaseTime")
-                        if (int == 0) return@TextButton
+                        if (int1 == 0) return@TextButton
                         if (hasPermission(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW)) {
                             if (!tomatoCircle.start(count, int * 60, int1 * 60)) {
                                 ModelManager.showToast("当前有其他任务正在运行!")

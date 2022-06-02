@@ -77,7 +77,6 @@ fun FocusTomato() {
     val animateFloat = remember { Animatable(currentTime.toFloat() / maxTime) }
     LaunchedEffect(Unit) {
         while (isCircle) {
-            if (!isCircle) return@LaunchedEffect
             isCircle = tomatoTimer.isCircle
             if (currentTime > maxTime) {
                 isFocusing = !isFocusing

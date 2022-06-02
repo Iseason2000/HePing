@@ -287,7 +287,7 @@ object ModelManager {
         if (!devicePolicyManager.isAdminActive(adminComponent)) {
             val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
             intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent)
-            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "一键锁屏,非常好用");
+            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "一键锁屏,非常好用")
             mainActivity.startActivityForResult(intent, 1)
         } else {
             devicePolicyManager.lockNow()

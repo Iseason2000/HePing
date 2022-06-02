@@ -24,7 +24,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.flow.collect
 import top.iseason.heping.manager.ConfigManager
 import top.iseason.heping.manager.ModelManager
 import top.iseason.heping.ui.screen.NavBar
@@ -193,7 +192,7 @@ fun SleepTime() {
                             if (index == 0) {
                                 it.nativeCanvas.drawText(
                                     "昨晚",
-                                    actWidth - (actWidth / 6 * index),
+                                    actWidth,
                                     height + 40 * rate,
                                     textPaint
                                 )
@@ -331,14 +330,16 @@ fun SleepTime() {
                                 temp.add(Pair(today[index - 1], event))
                             }
                             //计算休息时间最长的时间
-                            var todayWakeUp: Pair<SleepEvent, SleepEvent> = temp[0]
-                            for (sleepEvent in temp) {
-                                //3点前起床的算
-                                if (sleepEvent.second.hour < 15)
-                                    if (sleepEvent.getUsedTime() > todayWakeUp.getUsedTime())
-                                        todayWakeUp = sleepEvent
+                            if (temp.isNotEmpty()) {
+                                var todayWakeUp: Pair<SleepEvent, SleepEvent> = temp[0]
+                                for (sleepEvent in temp) {
+                                    //3点前起床的算
+                                    if (sleepEvent.second.hour < 15)
+                                        if (sleepEvent.getUsedTime() > todayWakeUp.getUsedTime())
+                                            todayWakeUp = sleepEvent
+                                }
+                                sleepTimeForDay.add(todayWakeUp)
                             }
-                            sleepTimeForDay.add(todayWakeUp)
                         }
                         sleepTimeForDays = sleepTimeForDay
                         for (sleepTime2 in sleepTimeForDays) {

@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ExperimentalGraphicsApi
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -42,7 +41,6 @@ import top.iseason.heping.ui.screen.focus.SettingLine
 import top.iseason.heping.ui.screen.focus.SettingTitle
 import java.util.*
 
-@OptIn(ExperimentalGraphicsApi::class)
 @Composable
 fun MainSetting() {
     NavBar("高级设置") {

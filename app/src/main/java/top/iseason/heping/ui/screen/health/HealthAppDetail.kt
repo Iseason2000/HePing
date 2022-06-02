@@ -71,7 +71,7 @@ fun TotalDays(dayList: List<AppInfo>) {
     dayList.forEach {
         maxTimeList.add(it.getTotalTime())
     }
-    val totalMaxTime = maxTimeList.take(maxTimeList.size - 1).maxOf { it }
+    val totalMaxTime = maxTimeList.maxOf { it }
     val maxHour = (totalMaxTime / 3600000L).toInt() + 1
     val date = Util.getDate(-selectedDay)
     Column {
@@ -194,7 +194,7 @@ fun TotalDays(dayList: List<AppInfo>) {
                             if (index == 0) {
                                 it.nativeCanvas.drawText(
                                     "今天",
-                                    actWidth - (actWidth / 6 * index),
+                                    actWidth,
                                     height + 15 * rate,
                                     textPaint
                                 )

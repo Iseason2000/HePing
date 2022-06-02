@@ -1,6 +1,5 @@
 package top.iseason.heping
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -8,7 +7,6 @@ import android.os.Bundle
 import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
@@ -26,8 +24,6 @@ import top.iseason.heping.ui.theme.HePingTheme
 
 
 class MainActivity : ComponentActivity() {
-    @SuppressLint("StateFlowValueCalledInComposition")
-    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ModelManager.setMainActivity(this)

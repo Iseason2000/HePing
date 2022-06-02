@@ -54,13 +54,6 @@ fun HelpScreen() {
                     "本应用会记录您已连续使用屏幕的时长，您可以设定一个使用时长，连续使用达到该时长时和屏将提醒您暂时放下手机休息2分钟后再继续使用。推荐设定的疲劳时长为30~60分钟。"
                 )
             }
-            item { Spacer(modifier = Modifier.height(16.dp)) }
-            item {
-                TextCard(
-                    "久坐检测",
-                    "本应用会根据手机的陀螺仪等传感器的数据推测您的运动状态。您可以设定一个时长，当检测到您超过该时间长度未有过站立活动时将提醒您离开座位进行活动。推荐设定的时长为60~120分钟。"
-                )
-            }
             item { Spacer(modifier = Modifier.height(24.dp)) }
             item { SettingTitle(title = "专注模块") }
             item { Spacer(modifier = Modifier.height(16.dp)) }
